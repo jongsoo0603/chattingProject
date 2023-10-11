@@ -1,14 +1,16 @@
 ﻿#include <iostream>
 #include <string>
 #include <mysql/jdbc.h>
-#include <string>
+
+
 // 채팅 프로그램 - 메인.
+
 
 using namespace std;
 
 const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
-const string password = "0000"; // 데이터베이스 접속 비밀번호
+const string password = "1122"; // 데이터베이스 접속 비밀번호
 
 void join_membership(string id, string pw, string name, string phone)
 {
@@ -51,6 +53,7 @@ void join_membership(string id, string pw, string name, string phone)
     delete con;
 }
 
+
 string makeAllID()
 {
     string allID;
@@ -91,6 +94,71 @@ string makeAllID()
 }
 
 
+void inputLogin() {
+    string inputId, inputPw;
+    bool login = false, idYN = false, pwYN = false;;
+
+    // MySQL Connector/C++ 초기화
+    sql::mysql::MySQL_Driver* driver;
+    sql::Connection* con;
+    sql::Statement* stmt;
+    sql::ResultSet* res;
+
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+
+    // 데이터베이스 선택
+    con->setSchema("chattingproject");
+
+    // 데이터베이스 쿼리 실행
+    stmt = con->createStatement();
+    res = stmt->executeQuery("SELECT memberID,passWord FROM member");
+
+
+    // id 입력받기.
+    cout << "\nID를 입력해주세요.(영어+숫자, 20자 이내) : ";
+    cin >> inputId;
+    cout << "비밀번호를 입력해주세요.(숫자, 6자 이내) : ";
+    cin >> inputPw;
+
+    // id 확인.
+    while (res->next()) {
+        if (res->getString("memberID") == inputId) {
+            //해당 id 존재.
+            idYN = true;
+            if (res->getString("passWord") == inputPw) {
+                pwYN = true;
+                login = true;
+            }
+        }
+    }
+    delete res;
+    delete con;
+
+    if (login) {
+        //로그인 성공. - 채팅방 입장.
+        cout << "로그인 성공 :: 채팅방 입장" << endl;
+    }
+    else {
+        //로그인 실패. - 다시 로그인 받기.
+        if (!idYN) {
+            cout << "없는 ID입니다. ID를 확인해주세요." << endl;
+        }
+        else if (!pwYN) {
+            cout << "비밀번호가 일치하지 않습니다. 비밀번호를 확인해주세요." << endl;
+        }
+        inputLogin();
+    }
+
+}
+
+
 int main()
 {  
     int select, alphaCheck = 0, repeatedCheck = 0;
@@ -109,7 +177,8 @@ int main()
 
         else if (select == 1) // 로그인 해서 채팅 입장
         {
-            
+            inputLogin();
+            break;
         }
 
         else if (select == 2) // 회원가입

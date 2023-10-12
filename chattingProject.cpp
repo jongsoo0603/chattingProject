@@ -42,12 +42,12 @@ int chat_recv() {
             ss >> stream4; // 네 번째 단어
 
 
-            if (stream3 == "/d")
+            if (stream3 == "/D" || stream3 == "/d") // DM
             {
                 int eraseLength = 0;
                 eraseLength = size(stream1) + size(stream2) + size(stream3) + size(stream4) + 3;
                 msg.erase(0, eraseLength);
-                if (stream4 == my_nick)
+                if (stream3 == "/D"  && stream4 == my_nick)
                 {
                     cout << stream1 << "의 귓속말 :" << msg << endl;
                 }
@@ -68,8 +68,7 @@ int chat_recv() {
     }
 }
 
-
-
+// 받아온 채팅 출력, 채팅 보냄
 void client(string inputId)
 {
     WSADATA wsa;
@@ -103,13 +102,23 @@ void client(string inputId)
         std::thread th2(chat_recv); 
 
         while (1) {
-            string text;
+            string text, reciever, message;
             std::getline(cin, text);
 
             // 보내기 전에 여기서 전처리 해야됨
             if (text == "/d")
             {
-                
+                cout << "채팅방에 있는 친구목록: 이따가 친구 목록 여기에 출력" << endl;
+                cout << "DM할 친구 id 입력 : ";
+                cin >> reciever;
+                cout << "보낼 메세지 입력 : ";
+                getline(cin, message);
+                getline(cin, message);
+                text = "/D " + reciever + " " + message;
+            }
+            else if (text == "/g")
+            {
+
             }
 
             const char* buffer = text.c_str(); // string형을 char* 타입으로 변환

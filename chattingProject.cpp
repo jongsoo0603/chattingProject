@@ -31,9 +31,32 @@ int chat_recv() {
         if (recv(client_sock, buf, MAX_SIZE, 0) > 0) {
             msg = buf;
             std::stringstream ss(msg);  // 문자열을 스트림화
-            string user;
-            ss >> user; // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
-            if (user != my_nick) cout << buf << endl; // 내가 보낸 게 아닐 경우에만 출력하도록.
+            string stream1, stream2, stream3, stream4;
+            // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
+            ss >> stream1; // 첫 번째 단어
+            ss >> stream2; // 두 번째 단어
+            ss >> stream3; // 세 번째 단어
+            ss >> stream4; // 네 번째 단어
+
+
+            if (stream3 == "/d")
+            {
+                int eraseLength = 0;
+                eraseLength = size(stream1) + size(stream2) + size(stream3) + size(stream4) + 3;
+                msg.erase(0, eraseLength);
+                if (stream4 == my_nick)
+                {
+                    cout << stream1 << "의 귓속말 :" << msg << endl;
+                }
+                
+            }
+            else // 아무것도 안붙였을 때
+            {
+                if (stream1 != my_nick) 
+                {
+                    cout << msg << endl;
+                }
+            }
         }
         else {
             cout << "Server Off" << endl;
@@ -41,6 +64,8 @@ int chat_recv() {
         }
     }
 }
+
+
 
 void client(string inputId)
 {
@@ -71,13 +96,21 @@ void client(string inputId)
             cout << "Connecting..." << endl;
         }
 
-        std::thread th2(chat_recv);
+        // 전체 채팅 받아서 출력
+        std::thread th2(chat_recv); 
 
         while (1) {
             string text;
             std::getline(cin, text);
+
+            // 보내기 전에 여기서 전처리 해야됨
+            if (text == "/d")
+            {
+                
+            }
+
             const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-            send(client_sock, buffer, strlen(buffer), 0);
+            send(client_sock, buffer, strlen(buffer), 0); // 보내기
         }
         th2.join();
         closesocket(client_sock);

@@ -112,6 +112,7 @@ void add_client() {
     new_client.user = string(buf);
 
     string msg = "[공지] " + new_client.user + " 님이 입장했습니다.";
+
     cout << msg << endl;
     sck_list.push_back(new_client); // client 정보를 답는 sck_list 배열에 새로운 client 추가
 
@@ -146,6 +147,7 @@ void recv_msg(int idx) {
         }
         else { //그렇지 않을 경우 퇴장에 대한 신호로 생각하여 퇴장 메시지 전송
             msg = "[공지] " + sck_list[idx].user + " 님이 퇴장했습니다.";
+
             cout << msg << endl;
             send_msg(msg.c_str());
             del_client(idx); // 클라이언트 삭제

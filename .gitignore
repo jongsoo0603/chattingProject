@@ -2,6 +2,9 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,windows,visualstudio,visualstudiocode,c++
 
 ### C++ ###
+
+.vs
+
 # Prerequisites
 *.d
 

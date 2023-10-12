@@ -7,6 +7,9 @@
 #include <WS2tcpip.h>
 #include <sstream>
 #include <thread>
+#include <ctime>
+#include <random>
+#include <windows.h>
 
 #define MAX_SIZE 1024
 
@@ -145,16 +148,38 @@ void insertDB(string id, string pw, string name, string phone)
     stmt->execute("set names euckr");
     if (stmt) { delete stmt; stmt = nullptr; }
 
+    // 회원가입 시 그룹 랜덤 배정
+    string groupName;
+    int rNum;
+    srand(time(NULL));
+    rNum = (rand() % 4 + 1);
+    if (rNum == 1) {
+        groupName = "red";
+    }
+    else if (rNum == 2) {
+        groupName = "green";
+    }
+    else if (rNum == 3) {
+        groupName = "blue";
+    }
+    else if (rNum == 4) {
+        groupName = "yellow";
+    }
+
     // 데이터베이스 쿼리 실행
     // INSERT
-    pstmt = con->prepareStatement("INSERT INTO member(memberID, passWord, name, phoneNumber) VALUES(?,?,?,?)");
+    pstmt = con->prepareStatement("INSERT INTO member(memberID, passWord, name, phoneNumber, groupName) VALUES(?,?,?,?,?)");
 
     pstmt->setString(1, id);
     pstmt->setString(2, pw);
     pstmt->setString(3, name);
     pstmt->setString(4, phone);
+    pstmt->setString(5, groupName);
     pstmt->execute();
-    cout << "One row inserted." << endl;
+
+    cout << "\n☆★☆ 회원가입 완료 ☆★☆" << endl;
+    cout << "☆회원님은 "<< groupName <<"그룹입니다.☆" << endl;
+    cout << endl;
 
     // MySQL Connector/C++ 정리
     delete pstmt;
@@ -318,6 +343,49 @@ void inputMembership()
     }
 }
 
+
+// 회원 정보 조회
+void myPage(string id) {
+    // MySQL Connector/C++ 초기화
+    sql::mysql::MySQL_Driver* driver;
+    sql::Connection* con;
+    sql::Statement* stmt;
+    sql::ResultSet* res;
+
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+
+    // 데이터베이스 선택
+    con->setSchema("chattingproject");
+
+    // 데이터베이스 쿼리 실행
+    stmt = con->createStatement();
+    string sql = "SELECT memberID,passWord, name, phoneNumber, groupName, friendList FROM member WHERE memberID ='" + id +"'";
+    res = stmt->executeQuery(sql);
+
+    //pstmt->setString(5, groupName);
+    //pstmt->execute();
+    while (res->next()) {
+        cout << "  ◇◆◇  회원 정보 조회  ◆◇◆  " << endl;
+        cout << "   ID : " << res->getString("memberID") << endl;
+        cout << "   NAME : " << res->getString("name") << endl;
+        cout << "   PHONENUMBER : " << res->getString("phoneNumber") << endl;
+        cout << "   GROUP : " << res->getString("groupName") << endl;
+        cout << "   FRIEND : " << res->getString("friendList") << endl;
+        cout << "  ◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆  " << endl;
+    }
+
+    delete res;
+    delete con;
+}
+
+
 // 로그인 조건 확인
 void inputLogin() {
     string inputId, inputPw;
@@ -346,13 +414,13 @@ void inputLogin() {
     res = stmt->executeQuery("SELECT memberID,passWord FROM member");
 
 
-    // id 입력받기.
+    // id,비번 입력받기.
     cout << "\nID를 입력해주세요.(영어+숫자, 20자 이내) : ";
     cin >> inputId;
     cout << "비밀번호를 입력해주세요.(숫자, 6자 이내) : ";
     cin >> inputPw;
 
-    // id 확인.
+    // id, 비번 확인.
     while (res->next()) {
         if (res->getString("memberID") == inputId) {
             //해당 id 존재.
@@ -385,7 +453,7 @@ void inputLogin() {
         else if (select == 2)
         {
             // 회원정보 조회
-            
+            myPage(inputId);
         }
         else if (select == 3)
         {
@@ -405,6 +473,8 @@ void inputLogin() {
     }
 
 }
+
+
 
 // 채팅 프로그램 - 메인.
 int main()

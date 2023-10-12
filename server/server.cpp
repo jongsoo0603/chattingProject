@@ -5,6 +5,7 @@
 #include <iostream>
 #include <thread>
 #include <vector>
+#include <mysql/jdbc.h>
 
 #define MAX_SIZE 1024
 #define MAX_CLIENT 3
@@ -22,12 +23,14 @@ struct SOCKET_INFO { // 연결된 소켓 정보에 대한 틀 생성
 std::vector<SOCKET_INFO> sck_list; // 연결된 클라이언트 소켓들을 저장할 배열 선언.
 SOCKET_INFO server_sock; // 서버 소켓에 대한 정보를 저장할 변수 선언.
 int client_count = 0; // 현재 접속해 있는 클라이언트를 count 할 변수 선언.
+std::vector<string> pctList;
 
 void server_init(); // socket 초기화 함수. socket(), bind(), listen() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void add_client(); // 소켓에 연결을 시도하는 client를 추가(accept)하는 함수. client accept() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void send_msg(const char* msg); // send() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void recv_msg(int idx); // recv() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void del_client(int idx); // 소켓에 연결되어 있는 client를 제거하는 함수. closesocket() 실행됨. 자세한 내용은 함수 구현부에서 확인.
+void insertPtcpt();
 
 int main() {
     WSADATA wsa;
@@ -112,6 +115,8 @@ void add_client() {
     new_client.user = string(buf);
 
     string msg = "[공지] " + new_client.user + " 님이 입장했습니다.";
+    pctList.push_back(new_client.user);
+    insertPtcpt();
 
     cout << msg << endl;
     sck_list.push_back(new_client); // client 정보를 답는 sck_list 배열에 새로운 client 추가
@@ -135,6 +140,7 @@ void send_msg(const char* msg) {
 void recv_msg(int idx) {
     char buf[MAX_SIZE] = { };
     string msg = "";
+    int pIdx = 0;
 
     //cout << sck_list[idx].user << endl;
 
@@ -147,6 +153,9 @@ void recv_msg(int idx) {
         }
         else { //그렇지 않을 경우 퇴장에 대한 신호로 생각하여 퇴장 메시지 전송
             msg = "[공지] " + sck_list[idx].user + " 님이 퇴장했습니다.";
+            pIdx = std::find(pctList.begin(), pctList.end(), sck_list[idx].user) - pctList.begin();
+            pctList.erase(pctList.begin() + pIdx);
+            insertPtcpt();
 
             cout << msg << endl;
             send_msg(msg.c_str());
@@ -160,4 +169,48 @@ void del_client(int idx) {
     closesocket(sck_list[idx].sck);
     //sck_list.erase(sck_list.begin() + idx); // 배열에서 클라이언트를 삭제하게 될 경우 index가 달라지면서 런타임 오류 발생....ㅎ
     client_count--;
+}
+
+
+// 참가자 DB insert
+void insertPtcpt()
+{
+    const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
+    const string username = "root"; // 데이터베이스 사용자
+    const string password = "1122"; // 데이터베이스 접속 비밀번호
+
+    // MySQL Connector/C++ 초기화
+    sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
+    sql::Connection* con;
+    sql::PreparedStatement* pstmt;
+
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+
+    // 데이터베이스 선택
+    con->setSchema("chattingproject");
+
+    // 참가자 목록 삭제 (중복방지)
+    sql::PreparedStatement* delPstmt;
+    delPstmt = con->prepareStatement("DELETE FROM participant");
+    delPstmt->execute();
+    delete delPstmt;
+
+    // 참가자 insert
+    for (int i = 0; i < pctList.size(); i++) {
+        sql::PreparedStatement* pstmt;
+        cout << "pctList.user : " << pctList[i] << endl;
+        pstmt = con->prepareStatement("INSERT INTO participant(memberID) VALUES(?)");
+        pstmt->setString(1, pctList[i]);
+        pstmt->execute();
+        delete pstmt;
+    }
+
+    delete con;
 }

@@ -334,9 +334,31 @@ void inputLogin() {
     delete con;
 
     if (login) {
-        //로그인 성공. - 채팅방 입장.
-        cout << "로그인 성공 :: 채팅방 입장" << endl;
-        client(inputId);
+        int select;
+        //로그인 성공. 
+        cout << "\n▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
+        cout << "  1. 채팅방 입장 " << endl;
+        cout << "  2. 회원정보 조회 " << endl;
+        cout << "  3. 친구정보 조회 " << endl;
+        cout << "△△△△△△△△△△△△△△" << endl;
+
+        cin >> select;
+
+        if (select == 1)
+        {
+            // 채팅방 입장
+            client(inputId);
+        }
+        else if (select == 2)
+        {
+            // 회원정보 조회
+            
+        }
+        else if (select == 3)
+        {
+            // 친구정보 조회
+            
+        }
     }
     else {
         //로그인 실패. - 다시 로그인 받기.
@@ -358,24 +380,33 @@ int main()
 
     while(true)
     {
-        cout << "1. 로그인 2. 회원가입 : ";
+        cout << "▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
+        cout << "  1. 로그인 " << endl;
+        cout << "  2. 회원가입 " << endl;
+        cout << "  3. 그룹별 랭킹 조회 " << endl;
+        cout << "△△△△△△△△△△△△△△" << endl;
+
         cin >> select;
 
-        if (select != 1 && select != 2)
+        if (select == 1) 
         {
-            cout << "\n잘못 입력하셨습니다." << endl;
-        }
-
-        else if (select == 1) // 로그인 해서 채팅 입장
-        {
+            // 로그인
             inputLogin();
             break;
         }
-
-        else if (select == 2) // 회원가입
+        else if (select == 2) 
         {
+            // 회원가입
             inputMembership();
         }
+        else if (select == 3) 
+        {
+            // 그룹별 랭킹 조회
+            inputMembership();
+        }
+        else 
+        {
+            cout << "\n잘못 입력하셨습니다." << endl;
+        }
     }
-
 }

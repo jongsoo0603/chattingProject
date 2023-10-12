@@ -205,7 +205,6 @@ void insertPtcpt()
     // Âü°¡ÀÚ insert
     for (int i = 0; i < pctList.size(); i++) {
         sql::PreparedStatement* pstmt;
-        cout << "pctList.user : " << pctList[i] << endl;
         pstmt = con->prepareStatement("INSERT INTO participant(memberID) VALUES(?)");
         pstmt->setString(1, pctList[i]);
         pstmt->execute();

@@ -24,6 +24,42 @@ SOCKET client_sock;
 string my_nick;
 
 
+// 참가자 목록 출력
+void getPtcpt() {
+    int i = 0;
+
+    // MySQL Connector/C++ 초기화
+    sql::mysql::MySQL_Driver* driver;
+    sql::Connection* con;
+    sql::Statement* stmt;
+    sql::ResultSet* res;
+
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+
+    // 데이터베이스 선택
+    con->setSchema("chattingproject");
+
+    // 데이터베이스 쿼리 실행
+    stmt = con->createStatement();
+    res = stmt->executeQuery("SELECT memberID FROM participant");
+    
+    // 참가자 목록 출력.
+    cout << " ▷ 참가자 목록 ◁" << endl;
+    while (res->next()) {
+        i++;
+        cout << i << ". " << res->getString("memberID") << endl;
+    }
+    delete res;
+    delete con;
+}
+
 // 채팅 받아옴
 int chat_recv() {
     char buf[MAX_SIZE] = { };
@@ -439,8 +475,9 @@ void inputLogin() {
         //로그인 성공. 
         cout << "\n▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
         cout << "  1. 채팅방 입장 " << endl;
-        cout << "  2. 회원정보 조회 " << endl;
-        cout << "  3. 친구정보 조회 " << endl;
+        cout << "  2. 채팅방 참가자 조회 " << endl;
+        cout << "  3. 회원정보 조회 " << endl;
+        cout << "  4. 친구정보 조회 " << endl;
         cout << "△△△△△△△△△△△△△△" << endl;
 
         cin >> select;
@@ -452,10 +489,15 @@ void inputLogin() {
         }
         else if (select == 2)
         {
+            // 채팅방 참가자 조회
+            getPtcpt();
+        }
+        else if (select == 3)
+        {
             // 회원정보 조회
             myPage(inputId);
         }
-        else if (select == 3)
+        else if (select == 4)
         {
             // 친구정보 조회
             

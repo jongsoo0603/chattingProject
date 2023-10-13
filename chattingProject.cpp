@@ -20,9 +20,12 @@ using namespace std;
 const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
 const string password = "1122"; // 데이터베이스 접속 비밀번호
+int current_state = 0;
+string friendSend, friendAccept;
 
 SOCKET client_sock;
 string my_nick;
+
 
 void successLogin(string inputId);
 
@@ -151,6 +154,8 @@ void getMyDM(string myId) {
     }
 }
 
+
+
 // 채팅 받아옴
 int chat_recv() {
     char buf[MAX_SIZE] = { };
@@ -160,8 +165,10 @@ int chat_recv() {
         ZeroMemory(&buf, MAX_SIZE);
         if (recv(client_sock, buf, MAX_SIZE, 0) > 0) {
             msg = buf;
+            // cout << "buf :" << buf << endl;
             std::stringstream ss(msg);  // 문자열을 스트림화
             string stream1, stream2, stream3, stream4;
+            string stream5;
             // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
             ss >> stream1; // 첫 번째 단어
             ss >> stream2; // 두 번째 단어
@@ -180,13 +187,27 @@ int chat_recv() {
                 }
                 
             }
-            else // 아무것도 안붙였을 때
+            else if (stream3 == "/F" || stream3 == "/f") // 친구신청
             {
+                if (stream3 == "/F" && stream4 == my_nick)
+                {
+                    friendSend = stream1;
+                    friendAccept = stream4;
+                    cout << "ID '" << stream1 << "'이(가) 친구 요청을 보냈습니다. 수락하시겠습니까?(Y, N) :" << endl;
+                    current_state = 1;
+                }
+
+            }
+            else // 명령어가 없을 때
+            {
+
                 if (stream1 != my_nick) 
                 {
                     cout << msg << endl;
                 }
             }
+
+            
         }
         else {
             cout << "Server Off" << endl;
@@ -229,25 +250,69 @@ void client(string inputId)
         std::thread th2(chat_recv); 
 
         while (1) {
-            string text, reciever, message;
+            string text;
             std::getline(cin, text);
 
-            // 보내기 전에 여기서 전처리 해야됨
-            if (text == "/d")
+            if (current_state == 1) // 친구신청 진행중인 상태일 때
             {
-                cout << "채팅방에 있는 친구목록: 이따가 친구 목록 여기에 출력" << endl;
-                cout << "DM할 친구 id 입력 : ";
-                cin >> reciever;
-                cout << "보낼 메세지 입력 : ";
-                getline(cin, message);
-                getline(cin, message);
-                text = "/D " + reciever + " " + message;
+                while (true)
+                {
+                    if (text == "Y")
+                    {
+                        cout << friendSend << "의 친구신청을 수락했습니다." << endl;
+                        // 여기에 친구 DB삽입
+                        // 전역변수 : friendSend = 친구 신청자, friendAccept = 친구 수락자
+                        text = "/D " + friendSend + " " + friendAccept + "가 친구신청을 수락했습니다.";
+                        break;
+                    }
+                    else if (text == "N")
+                    {
+                        cout << friendSend << "의 친구신청을 거절했습니다." << endl;
+                        text = "/D " + friendSend + " " + friendAccept + "가 친구신청을 거절했습니다.";
+                        break;
+                    }
+                    else
+                    {
+                        cout << "잘못입력하셨습니다." << endl;
+                        std::getline(cin, text);
+                    }
+                }
+                current_state = 0;
             }
-            else if (text == "/g")
+            else if(current_state == 0)// 아무 상태도 아닐 때
             {
+                //  명령어 전처리 과정
+                if (text == "/d")
+                {
+                    string reciever, message;
+                    cout << "채팅방에 있는 친구목록: 나중에 여기서 출력" << endl; // 채팅방에 있는 사람들 중 친구 목록 필요
+                    cout << "DM할 친구 id 입력 : ";
+                    cin >> reciever;
 
+                    cout << "보낼 메세지 입력 : ";
+                    getline(cin, message);
+                    getline(cin, message);
+                    text = "/D " + reciever + " " + message;
+                }
+                else if (text == "/f")
+                {
+                    string reciever;
+                    cout << "채팅방에 있는 친구가 아닌 사람 목록: " << endl; // 채팅방에 있는 사람들 중 친구가 아닌 사람 목록 필요
+
+                    cout << "친구신청 할 사람 id 입력 : ";
+                    cin >> reciever;
+                    //if () // reciever가 친구가 아니라면
+                    //{
+                    //    text = "/F " + reciever; // 송신자 : /F 수신자
+                    //}
+                    //else ()
+                    //{
+                    //    cout << "이미 친구입니다." << endl;
+                    // 
+                    //}
+                    text = "/F " + reciever; // 송신자 : /F 수신자
+                }
             }
-
             const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
             send(client_sock, buffer, strlen(buffer), 0); // 보내기
         }
@@ -564,6 +629,7 @@ void inputLogin(string inputId, string inputPw) {
     //string inputId, inputPw;
     bool login = false, idYN = false, pwYN = false;
 
+
     // MySQL Connector/C++ 초기화
     sql::mysql::MySQL_Driver* driver;
     sql::Connection* con;
@@ -684,7 +750,14 @@ void successLogin(string inputId) {
 
 
 // 채팅 프로그램 - 메인.
-int main(int argc, char* argv[]) {
+
+int main(int argc, char* argv[])
+{  
+    cout << "argc " << argc << endl;
+    for (int i = 0; i < argc; i++) {
+        cout << "argv " << argv[i] << endl;
+    }
+
     int select;
 
     while(true)

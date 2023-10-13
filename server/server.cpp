@@ -198,7 +198,7 @@ void insertPtcpt()
 
     // 참가자 목록 삭제 (중복방지)
     sql::PreparedStatement* delPstmt;
-    delPstmt = con->prepareStatement("DELETE FROM participant");
+    delPstmt = con->prepareStatement("TRUNCATE TABLE participant");
     delPstmt->execute();
     delete delPstmt;
 

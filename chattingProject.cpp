@@ -28,91 +28,10 @@ string my_nick;
 
 
 void successLogin(string inputId);
+void getPtcpt(string myId);
 
 
-// 참가자 목록 출력
-void getPtcpt(string myId) {
-    int i = 0;
-    string no, friendYN = "N";
-    vector<vector<string>> pList;
-    vector<string> fList;
-
-    // MySQL Connector/C++ 초기화
-    sql::mysql::MySQL_Driver* driver;
-    sql::Connection* con;
-    sql::Statement* stmt;
-    sql::ResultSet* pRes;
-    sql::ResultSet* fRes;
-
-    try {
-        driver = sql::mysql::get_mysql_driver_instance();
-        con = driver->connect(server, username, password);
-    }
-    catch (sql::SQLException& e) {
-        cout << "Could not connect to server. Error message: " << e.what() << endl;
-        exit(1);
-    }
-
-    // 데이터베이스 선택
-    con->setSchema("chattingproject");
-
-    cout << "id : " << myId << endl;
-
-    // 참가자 목록 select.
-    stmt = con->createStatement();
-    pRes = stmt->executeQuery("SELECT memberID FROM participant");
-
-    cout << " ▷ 참가자 목록 성공 ◁" << endl;
-    delete stmt;
-
-    // 친구 목록 select.
-    stmt = con->createStatement();
-    string sql = "SELECT friendList FROM member WHERE memberID ='" + myId + "'";
-    fRes = stmt->executeQuery(sql);
-
-    cout << " ▷ 친구 목록 성공 ◁" << endl;
-    cout << fRes->getString("friendList") << endl;
-
-    istringstream ss1(fRes->getString("friendList"));
-    string buffer;
-    while (getline(ss1, buffer, ',')) {
-        cout << buffer << endl;
-        //fList.push_back(buffer);
-    }
-
-    cout << " ▷ 친구 목록 넣기 ◁" << endl;
-
-
-    // 참가자 ID pList에 넣기.
-    while (pRes->next()) {
-        no = (i + 1);
-        friendYN = "N";
-        // 친구여부 확인.
-        for (int k = 0; k < fList.size(); k++) {
-            if (pRes->getString("memberID") == fList.at(k)) {
-                friendYN = "Y";
-            }
-        }
-        pList.at(i).push_back(no);                          // 참가자 번호
-        pList.at(i).push_back(pRes->getString("memberID")); // 참가자 ID
-        pList.at(i).push_back(friendYN);                    // 참가자와 로그인ID와 친구여부(Y/N)
-        i++;
-    }
-    delete pRes;
-    delete fRes;
-    delete con;
-
-
-    // 참가자 목록 출력.
-    cout << " ▷ 참가자 목록 ◁" << endl;
-    for (int j = 0; j<pList.size(); j++) {
-        cout << pList.at(j).at(0) << ". ";
-        cout << pList.at(j).at(1) << endl;
-        cout << "(임시) 친구여부 : " << pList.at(j).at(2) << endl;
-    }
-
-}
-
+// 이전 DM 조회
 void getMyDM(string myId) {
     // MySQL Connector/C++ 초기화
     sql::mysql::MySQL_Driver* driver;
@@ -298,7 +217,7 @@ void client(string inputId)
                 {
                     string reciever;
                     cout << "채팅방에 있는 친구가 아닌 사람 목록: " << endl; // 채팅방에 있는 사람들 중 친구가 아닌 사람 목록 필요
-
+                    
                     cout << "친구신청 할 사람 id 입력 : ";
                     cin >> reciever;
                     //if () // reciever가 친구가 아니라면
@@ -753,11 +672,6 @@ void successLogin(string inputId) {
 
 int main(int argc, char* argv[])
 {  
-    cout << "argc " << argc << endl;
-    for (int i = 0; i < argc; i++) {
-        cout << "argv " << argv[i] << endl;
-    }
-
     int select;
 
     while(true)

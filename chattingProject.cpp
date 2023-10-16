@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 #define MAX_SIZE 1024
-
+#define USE_BATCH
 
 using namespace std;
 
@@ -74,6 +74,73 @@ void getMyDM(string myId) {
 }
 
 
+
+// 신청자 친구 목록 받고, 목록에 수락자 추가해서 반환
+string getFriend(string sender, string accepter)
+{
+    string query, frienList;
+
+    sql::mysql::MySQL_Driver* driver;
+    sql::Connection* con;
+    sql::Statement* stmt;
+    sql::ResultSet* res;
+
+
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+
+    con->setSchema("chattingproject");
+
+    stmt = con->createStatement();
+    query = "SELECT friendList FROM member WHERE memberID = '" + sender + "'";
+    res = stmt->executeQuery(query); // 신청자 친구 목록 받고
+    if(res->next())
+        frienList = res->getString("friendList") + ", " + accepter; // 목록에 수락자 추가하고
+
+    delete res;
+    delete stmt;
+    delete con;
+
+    return frienList;
+}
+//  반환 값 DB에 삽입
+void updateFriend(string sender, string accepter)
+{
+    sql::mysql::MySQL_Driver* driver;
+    sql::Connection* con;
+    sql::Statement* stmt;
+    sql::ResultSet* res;
+
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+
+    // db 한글 저장을 위한 셋팅 
+    stmt = con->createStatement();
+    stmt->execute("set names euckr");
+    if (stmt) { delete stmt; stmt = nullptr; }
+
+    con->setSchema("chattingproject");
+
+    stmt = con->createStatement();
+    string query = "UPDATE member SET friendList = '" + getFriend(sender, accepter) + "' WHERE(memberID = '" + sender + "')"; // DB에 삽입
+    res = stmt->executeQuery(query);
+
+    delete res;
+    delete stmt;
+    delete con;
+}
 
 // 채팅 받아옴
 int chat_recv() {
@@ -182,6 +249,8 @@ void client(string inputId)
                         // 여기에 친구 DB삽입
                         // 전역변수 : friendSend = 친구 신청자, friendAccept = 친구 수락자
                         text = "/D " + friendSend + " " + friendAccept + "가 친구신청을 수락했습니다.";
+                        updateFriend(friendSend, friendAccept);
+                        updateFriend(friendAccept, friendSend);
                         break;
                     }
                     else if (text == "N")
@@ -573,11 +642,15 @@ void inputLogin(string inputId, string inputPw) {
 
 
     // id,비번 입력받기.
-    cout << "\nID를 입력해주세요.(영어+숫자, 20자 이내) : ";
-    //cin >> inputId;
+    if (inputId.empty()) {
+        cout << "\nID를 입력해주세요.(영어+숫자, 20자 이내) : ";
+        cin >> inputId;
+    }
 
-    cout << "비밀번호를 입력해주세요.(숫자, 6자 이내) : ";
-    //cin >> inputPw;
+    if (inputPw.empty()) {
+        cout << "비밀번호를 입력해주세요.(숫자, 6자 이내) : ";
+        cin >> inputPw;
+    }
 
     // id, 비번 확인.
     while (res->next()) {
@@ -681,14 +754,19 @@ int main(int argc, char* argv[])
         cout << "  2. 회원가입 " << endl;
         cout << "  3. 그룹별 랭킹 조회 " << endl;
         cout << "△△△△△△△△△△△△△△" << endl;
-
-        //cin >> select;
+#ifdef USE_BATCH
         select = atoi(argv[1]);
-
+#else
+        cin >> select;
+#endif
         if (select == 1) 
         {
             // 로그인
+#ifdef USE_BATCH
             inputLogin(argv[2], argv[3]);
+#else
+            inputLogin("", "");
+#endif
             break;
         }
         else if (select == 2) 

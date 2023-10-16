@@ -28,8 +28,7 @@ string my_nick;
 
 
 void successLogin(string inputId);
-void getPtcpt(string myId);
-
+vector<vector<string>> getPtcpt(string myId);
 
 // 이전 DM 조회
 void getMyDM(string myId) {
@@ -101,7 +100,7 @@ string getFriend(string sender, string accepter)
     query = "SELECT friendList FROM member WHERE memberID = '" + sender + "'";
     res = stmt->executeQuery(query); // 신청자 친구 목록 받고
     if(res->next())
-        frienList = res->getString("friendList") + ", " + accepter; // 목록에 수락자 추가하고
+        frienList = res->getString("friendList") + "," + accepter; // 목록에 수락자 추가하고
 
     delete res;
     delete stmt;
@@ -134,10 +133,9 @@ void updateFriend(string sender, string accepter)
     con->setSchema("chattingproject");
 
     stmt = con->createStatement();
-    string query = "UPDATE member SET friendList = '" + getFriend(sender, accepter) + "' WHERE(memberID = '" + sender + "')"; // DB에 삽입
-    res = stmt->executeQuery(query);
+    string query = "UPDATE member SET friendList = '" + getFriend(sender, accepter) + "' WHERE (memberID = '" + sender + "')"; // DB에 삽입
+    stmt->execute(query);
 
-    delete res;
     delete stmt;
     delete con;
 }
@@ -211,6 +209,7 @@ void client(string inputId)
     // 실행에 성공하면 0을, 실패하면 그 이외의 값을 반환.
     // 0을 반환했다는 것은 Winsock을 사용할 준비가 되었다는 의미.
     int code = WSAStartup(MAKEWORD(2, 2), &wsa);
+    vector<vector<string>> pList;
 
     if (!code) {
         my_nick = inputId;
@@ -284,21 +283,20 @@ void client(string inputId)
                 }
                 else if (text == "/f")
                 {
-                    string reciever;
-                    cout << "채팅방에 있는 친구가 아닌 사람 목록: " << endl; // 채팅방에 있는 사람들 중 친구가 아닌 사람 목록 필요
-                    
-                    cout << "친구신청 할 사람 id 입력 : ";
-                    cin >> reciever;
-                    //if () // reciever가 친구가 아니라면
-                    //{
-                    //    text = "/F " + reciever; // 송신자 : /F 수신자
-                    //}
-                    //else ()
-                    //{
-                    //    cout << "이미 친구입니다." << endl;
-                    // 
-                    //}
-                    text = "/F " + reciever; // 송신자 : /F 수신자
+                    int newFrdNum;
+                    pList = getPtcpt(inputId);
+                    cout << "친구신청 할 사람 번호 입력 : ";
+                    cin >> newFrdNum;
+                    vector<string> newFriend;
+                    newFriend = pList[newFrdNum - 1];
+                    if (newFriend[2] == "N")
+                    {
+                        text = "/F " + newFriend[1]; // 송신자 : /F 수신자
+                    }
+                    else if (newFriend[2] == "Y")
+                    {
+                        cout << "이미 친구입니다." << endl;
+                    }
                 }
             }
             const char* buffer = text.c_str(); // string형을 char* 타입으로 변환

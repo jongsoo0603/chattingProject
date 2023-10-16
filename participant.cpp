@@ -13,7 +13,7 @@ const string password = "1122"; // 데이터베이스 접속 비밀번호
 
 
 // 참가자 목록 출력 (전체)
-void getPtcpt(string myId) {
+vector<vector<string>> getPtcpt(string myId) {
     int i = 0;
     string no, friendYN = "N";
     vector<vector<string>> pList;
@@ -95,4 +95,5 @@ void getPtcpt(string myId) {
         cout << pList.at(j).at(1);
         cout << " - 친구여부 : " << pList.at(j).at(2) << endl;
     }
+    return pList;
 }

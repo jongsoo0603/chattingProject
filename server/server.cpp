@@ -6,6 +6,7 @@
 #include <thread>
 #include <vector>
 #include <mysql/jdbc.h>
+#include <sstream>
 
 #define MAX_SIZE 1024
 #define MAX_CLIENT 3
@@ -31,6 +32,12 @@ void send_msg(const char* msg); // send() 함수 실행됨. 자세한 내용은 함수 구현부
 void recv_msg(int idx); // recv() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void del_client(int idx); // 소켓에 연결되어 있는 client를 제거하는 함수. closesocket() 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void insertPtcpt();
+void insertMsgInfo(string msg);
+
+const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
+const string username = "root"; // 데이터베이스 사용자
+const string password = "1122"; // 데이터베이스 접속 비밀번호
+
 
 int main() {
     WSADATA wsa;
@@ -135,6 +142,9 @@ void send_msg(const char* msg) {
     for (int i = 0; i < client_count; i++) { // 접속해 있는 모든 client에게 메시지 전송
         send(sck_list[i].sck, msg, MAX_SIZE, 0);
     }
+    
+    // 메세지 insert DB
+    insertMsgInfo(msg);
 }
 
 void recv_msg(int idx) {
@@ -175,14 +185,9 @@ void del_client(int idx) {
 // 참가자 DB insert
 void insertPtcpt()
 {
-    const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
-    const string username = "root"; // 데이터베이스 사용자
-    const string password = "1122"; // 데이터베이스 접속 비밀번호
-
     // MySQL Connector/C++ 초기화
     sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
     sql::Connection* con;
-    sql::PreparedStatement* pstmt;
 
     try {
         driver = sql::mysql::get_mysql_driver_instance();
@@ -212,4 +217,66 @@ void insertPtcpt()
     }
 
     delete con;
+}
+
+
+void insertMsgInfo(string msg) 
+{
+    std::stringstream ss(msg);  // 문자열을 스트림화
+    string stream1 = "", stream2 = "", stream3 = "", stream4 = "";
+    string dmYN = "0";
+    // 
+    // 1: 송신자, 3 : /D , 4 : 수신자, 시간은 현재시간으로 넣기.
+    ss >> stream1; // 첫 번째 단어
+    ss >> stream2; // 두 번째 단어
+    ss >> stream3; // 세 번째 단어
+    ss >> stream4; // 네 번째 단어
+
+    // 명령어는 '/D','/S'만 가능. 
+    if (stream3 != "/d" && stream3 != "/s" && stream3 != "/f" && stream3 != "/F") {
+        if (stream3 == "/D") {
+            dmYN = "1";
+        }else{
+            stream4 = "";
+        }
+
+        // 공지는 memberID null.
+        if (stream1 == "[공지]") {
+            stream1 = "";
+        }
+
+        // MySQL Connector/C++ 초기화
+        sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
+        sql::Connection* con;
+        sql::PreparedStatement* pstmt;
+        sql::Statement* stmt;
+
+        try {
+            driver = sql::mysql::get_mysql_driver_instance();
+            con = driver->connect(server, username, password);
+        }
+        catch (sql::SQLException& e) {
+            cout << "Could not connect to server. Error message: " << e.what() << endl;
+            exit(1);
+        }
+
+        // 데이터베이스 선택
+        con->setSchema("chattingproject");
+
+        // db 한글 저장을 위한 셋팅 
+        stmt = con->createStatement();
+        stmt->execute("set names euckr");
+        if (stmt) { delete stmt; stmt = nullptr; }
+
+        // 참가자 insert
+        pstmt = con->prepareStatement("INSERT INTO chat(memberID, chatContent, chatDateTime, DM, receiverID) VALUES(?,?,date_format(now(), '%Y-%m-%d %H:%m:%s'), ?,?);");
+        pstmt->setString(1, stream1);
+        pstmt->setString(2, msg);
+        pstmt->setString(3, dmYN);
+        pstmt->setString(4, stream4);
+        pstmt->execute();
+
+        delete pstmt;
+        delete con;
+    }
 }

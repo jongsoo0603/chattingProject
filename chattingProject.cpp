@@ -29,6 +29,7 @@ string my_nick;
 
 void successLogin(string inputId);
 vector<vector<string>> getPtcpt(string myId);
+vector<string> useSpeaker(string myId);
 
 // 이전 DM 조회
 void getMyDM(string myId) {
@@ -347,6 +348,27 @@ void client(string inputId)
                     }
                     
                 }
+                else if (text == "/s")
+                {
+                    vector<string> groupInfo;
+                    string groupName, message;
+                    int gSize = groupInfo.size();
+                    groupInfo = useSpeaker(inputId);
+
+                    groupName = groupInfo[0];
+                    cout << "[" << groupName << "]group에게 보낼 메세지 입력 : ";
+                    getline(cin, message);
+                    getline(cin, message);
+
+                    for (int i = 0; i < groupInfo.size(); i++) 
+                    {
+                        text = "/S " + groupName + " " + groupInfo.at(i) + " " + message;
+
+                        const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
+                        send(client_sock, buffer, strlen(buffer), 0); // 보내기
+                    }
+                    text = "";
+                }
             }
             const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
             send(client_sock, buffer, strlen(buffer), 0); // 보내기
@@ -601,6 +623,11 @@ void myPage(string id) {
     // 데이터베이스 선택
     con->setSchema("chattingproject");
 
+    // db 한글 저장을 위한 셋팅 
+    stmt = con->createStatement();
+    stmt->execute("set names euckr");
+    if (stmt) { delete stmt; stmt = nullptr; }
+
     // 데이터베이스 쿼리 실행
     stmt = con->createStatement();
     string sql = "SELECT memberID,passWord, name, phoneNumber, groupName, friendList FROM member WHERE memberID ='" + id +"'";
@@ -642,6 +669,11 @@ void getMyfriendInfo(string myId) {
 
     // 데이터베이스 선택
     con->setSchema("chattingproject");
+
+    // db 한글 저장을 위한 셋팅 
+    stmt = con->createStatement();
+    stmt->execute("set names euckr");
+    if (stmt) { delete stmt; stmt = nullptr; }
 
     // 데이터베이스 쿼리 실행
     stmt = con->createStatement();
@@ -755,22 +787,26 @@ void successLogin(string inputId) {
     else if (select == 2)
     {
         // 채팅방 참가자 조회
+        system("cls");
         getPtcpt(inputId);
     }
     else if (select == 3)
     {
         // 회원정보 조회
+        system("cls");
         myPage(inputId);
     }
     else if (select == 4)
     {
         // 친구정보 조회
+        system("cls");
         getMyfriendInfo(inputId);
 
     }
     else if (select == 5) 
     {
         // 이전 DM 조회
+        system("cls");
         getMyDM(inputId);
     }
 

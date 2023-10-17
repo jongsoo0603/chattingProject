@@ -97,3 +97,41 @@ vector<vector<string>> getPtcpt(string myId) {
     }
     return pList;
 }
+
+
+vector<string> useSpeaker(string myId) {
+    // MySQL Connector/C++ 초기화
+    sql::mysql::MySQL_Driver* driver;
+    sql::Connection* con;
+    sql::Statement* stmt;
+    sql::ResultSet* res;
+    vector<string> groupInfo;
+    string groupName;
+
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+
+    // 데이터베이스 선택
+    con->setSchema("chattingproject");
+
+    // 같은 그룹 ID 조회
+    stmt = con->createStatement();
+    res = stmt->executeQuery("SELECT memberID, groupName FROM member WHERE groupName = (SELECT groupName FROM member WHERE memberID ='" + myId + "')");
+    delete stmt;
+
+    while (res->next()) {
+        groupName = (res->getString("groupName"));
+        if (groupInfo.empty()) {
+            groupInfo.push_back(groupName);
+        }
+        groupInfo.push_back(res->getString("memberID"));
+    }
+
+    return groupInfo;
+}

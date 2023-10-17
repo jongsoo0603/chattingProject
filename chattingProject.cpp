@@ -11,9 +11,37 @@
 #include <random>
 #include <windows.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <windows.h>
 
 #define MAX_SIZE 1024
 #define USE_BATCH
+
+//색상
+enum {
+    BLACK,
+    DARK_BLUE,
+    DARK_GREEN,
+    DARK_SKYBLUE,
+    DARK_RED,
+    DARK_VOILET,
+    DAKR_YELLOW,
+    GRAY,
+    DARK_GRAY,
+    BLUE,
+    GREEN,
+    SKYBLUE,
+    RED,
+    VIOLET,
+    YELLOW,
+    WHITE,
+};
+
+// 콘솔 텍스트 색상 변경해주는 함수
+void setColor(unsigned short text) {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), text);
+}
+
 
 using namespace std;
 
@@ -152,14 +180,13 @@ int chat_recv() {
             msg = buf;
             // cout << "buf :" << buf << endl;
             std::stringstream ss(msg);  // 문자열을 스트림화
-            string stream1, stream2, stream3, stream4;
-            string stream5;
+            string stream1, stream2, stream3, stream4, stream5;
             // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
             ss >> stream1; // 첫 번째 단어
             ss >> stream2; // 두 번째 단어
             ss >> stream3; // 세 번째 단어
             ss >> stream4; // 네 번째 단어
-
+            ss >> stream5; // 다섯 번째 단어
 
             if (stream3 == "/D" || stream3 == "/d") // DM
             {
@@ -181,7 +208,36 @@ int chat_recv() {
                     cout << "ID '" << stream1 << "'이(가) 친구 요청을 보냈습니다. 수락하시겠습니까?(Y, N) :" << endl;
                     current_state = 1;
                 }
-
+            }
+            else if (stream3 == "/S" || stream3 == "/s") // 송신자 : /S 그룹이름 수신자 메세지
+            {
+                cout << "첫 번째 엘이프 my_nick : " << my_nick << endl;
+                if (stream3 == "/S" && stream5 == my_nick)
+                {
+                    cout << "두 번째 이프" << endl;
+                    int eraseLength = 0;
+                    eraseLength = size(stream1) + size(stream2) + size(stream3) + size(stream4) + size(stream5) + 4;
+                    msg.erase(0, eraseLength);
+                    if (stream4 == "red")
+                    {
+                        setColor(RED);
+                    }
+                    else if (stream4 == "green")
+                    {
+                        setColor(GREEN);
+                    }
+                    else if (stream4 == "blue")
+                    {
+                        setColor(BLUE);
+                    }
+                    else if (stream4 == "yellow")
+                    {
+                        setColor(YELLOW);
+                    }
+                    cout << stream1 << "의 그룹 메세지 :" << msg << endl;
+                    setColor(WHITE);
+                }
+                
             }
             else // 명령어가 없을 때
             {
@@ -298,7 +354,7 @@ void client(string inputId)
                                     cout << "보낼 메세지 입력 : ";
                                     getline(cin, message);
                                     getline(cin, message);
-                                    text = "/D " + newFriend[1] + " " + message; // 송신자 : /D  그룹이름 수신자 메세지
+                                    text = "/D " + newFriend[1] + " " + message; // 송신자 : /D 수신자 메세지
                                     end = 1;
                                     break;
                                 }
@@ -357,17 +413,20 @@ void client(string inputId)
 
                     groupName = groupInfo[0];
                     cout << "[" << groupName << "]group에게 보낼 메세지 입력 : ";
-                    getline(cin, message);
+                    // getline(cin, message);
                     getline(cin, message);
 
-                    for (int i = 0; i < groupInfo.size(); i++) 
+                    for (int i = 1; i < groupInfo.size(); i++)
                     {
-                        text = "/S " + groupName + " " + groupInfo.at(i) + " " + message;
+                        if (groupInfo.at(i) != my_nick)
+                        {
+                            text = "/S " + groupName + " " + groupInfo.at(i) + " " + message; // 송신자 : /S 그룹이름 수신자 메세지
 
-                        const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-                        send(client_sock, buffer, strlen(buffer), 0); // 보내기
+                            const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
+                            send(client_sock, buffer, strlen(buffer), 0); // 보내기
+                        }
+                        text = "";
                     }
-                    text = "";
                 }
             }
             const char* buffer = text.c_str(); // string형을 char* 타입으로 변환

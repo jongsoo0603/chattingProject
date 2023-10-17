@@ -51,6 +51,11 @@ void getMyDM(string myId) {
     // 데이터베이스 선택
     con->setSchema("chattingproject");
 
+    // db 한글 저장을 위한 셋팅 
+    stmt = con->createStatement();
+    stmt->execute("set names euckr");
+    if (stmt) { delete stmt; stmt = nullptr; }
+
     // 데이터베이스 쿼리 실행
     stmt = con->createStatement();
     string sql = "SELECT memberID, chatContent, chatDateTime FROM chat WHERE receiverID ='" + myId +"' and DM = 1";

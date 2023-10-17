@@ -234,7 +234,8 @@ void client(string inputId)
         // 전체 채팅 받아서 출력
         std::thread th2(chat_recv); 
 
-        while (1) {
+        while (1) 
+        {
             string text;
             std::getline(cin, text);
 
@@ -261,6 +262,7 @@ void client(string inputId)
                     else
                     {
                         cout << "잘못입력하셨습니다." << endl;
+                        cout << "ID '" << friendSend << "'이(가) 친구 요청을 보냈습니다. 수락하시겠습니까?(Y, N) :" << endl;
                         std::getline(cin, text);
                     }
                 }
@@ -271,32 +273,79 @@ void client(string inputId)
                 //  명령어 전처리 과정
                 if (text == "/d")
                 {
-                    string reciever, message;
-                    cout << "채팅방에 있는 친구목록: 나중에 여기서 출력" << endl; // 채팅방에 있는 사람들 중 친구 목록 필요
-                    cout << "DM할 친구 id 입력 : ";
-                    cin >> reciever;
-
-                    cout << "보낼 메세지 입력 : ";
-                    getline(cin, message);
-                    getline(cin, message);
-                    text = "/D " + reciever + " " + message;
+                    int end = 0;
+                    string newFrdNum, message;
+                    pList = getPtcpt(inputId);
+                    while (end == 0)
+                    {
+                        cout << "DM 할 사람 id 입력 : ";
+                        cin >> newFrdNum;
+                        vector<string> newFriend;
+                        for (int i = 1; i < pList.size() + 1; i++)
+                        {
+                            newFriend = pList[i - 1];
+                            if (newFrdNum == newFriend[1])
+                            {
+                                if (newFriend[2] == "N")
+                                {
+                                    cout << "친구가 아닌 참가자에게는 DM 할 수 없습니다." << endl;
+                                    end = 1;
+                                    break;
+                                }
+                                else if (newFriend[2] == "Y")
+                                {
+                                    cout << "보낼 메세지 입력 : ";
+                                    getline(cin, message);
+                                    getline(cin, message);
+                                    text = "/D " + newFriend[1] + " " + message; // 송신자 : /D  그룹이름 수신자 메세지
+                                    end = 1;
+                                    break;
+                                }
+                            }
+                        }
+                        if (end == 0)
+                        {
+                            cout << "\n            * 입력 오류 *" << endl;
+                            cout << "### 참가자 목록의 id를 입력하세요. ###" << endl;
+                        }
+                    }
                 }
                 else if (text == "/f")
                 {
-                    int newFrdNum;
+                    int end = 0;
+                    string newFrdNum;
                     pList = getPtcpt(inputId);
-                    cout << "친구신청 할 사람 번호 입력 : ";
-                    cin >> newFrdNum;
-                    vector<string> newFriend;
-                    newFriend = pList[newFrdNum - 1];
-                    if (newFriend[2] == "N")
+                    while (end == 0)
                     {
-                        text = "/F " + newFriend[1]; // 송신자 : /F 수신자
+                        cout << "친구신청 할 사람 id 입력 : ";
+                        cin >> newFrdNum;
+                        vector<string> newFriend;
+                        for (int i = 1; i < pList.size() + 1; i++)
+                        {
+                            newFriend = pList[i - 1];
+                            if (newFrdNum == newFriend[1])
+                            {
+                                if (newFriend[2] == "N")
+                                {
+                                    text = "/F " + newFriend[1]; // 송신자 : /F 수신자
+                                    end = 1;
+                                    break;
+                                }
+                                else if (newFriend[2] == "Y")
+                                {
+                                    cout << "이미 친구입니다." << endl;
+                                    end = 1;
+                                    break;
+                                }
+                            }
+                        }
+                        if (end == 0)
+                        {
+                            cout << "\n            * 입력 오류 *" << endl;
+                            cout << "### 참가자 목록의 id를 입력하세요. ###" << endl;
+                        }
                     }
-                    else if (newFriend[2] == "Y")
-                    {
-                        cout << "이미 친구입니다." << endl;
-                    }
+                    
                 }
             }
             const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
@@ -355,13 +404,14 @@ void insertDB(string id, string pw, string name, string phone)
 
     // 데이터베이스 쿼리 실행
     // INSERT
-    pstmt = con->prepareStatement("INSERT INTO member(memberID, passWord, name, phoneNumber, groupName) VALUES(?,?,?,?,?)");
+    pstmt = con->prepareStatement("INSERT INTO member(memberID, passWord, name, phoneNumber, groupName, friendList) VALUES(?,?,?,?,?,?)");
 
     pstmt->setString(1, id);
     pstmt->setString(2, pw);
     pstmt->setString(3, name);
     pstmt->setString(4, phone);
     pstmt->setString(5, groupName);
+    pstmt->setString(6, "");
     pstmt->execute();
 
     cout << "\n☆★☆ 회원가입 완료 ☆★☆" << endl;

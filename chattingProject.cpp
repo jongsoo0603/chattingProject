@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #define MAX_SIZE 1024
-// #define USE_BATCH
+#define USE_BATCH
 
 //색상
 enum {
@@ -225,7 +225,7 @@ void client(string myId)
         std::thread th2(chat_recv); 
 
         // 이전 대화내용 출력
-        getBeforeChat(inputId);
+        getBeforeChat(myId);
 
         cout << "        §    채 팅 방    입 장    §     " << endl;
         cout << "※ 기타 기능 사용하기 ( '/d' : DM, '/f' : 친구 신청, ‘/s’ : 확성기 ) \n" << endl;
@@ -579,6 +579,7 @@ void myPage(string myId) {
         cin >> action;
         if (action == "Y")
         {
+            system("cls");
             cout << "비밀번호를 입력하세요 : ";
             cin >> chckPW;
             if (chckPW == pw)

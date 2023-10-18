@@ -142,6 +142,7 @@ string checkCondition(int conditionSelect)
     default:
         break;
     }
+    system("cls");
 }
 
 

@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="beforeChat.cpp" />
     <ClCompile Include="chattingProject.cpp" />
     <ClCompile Include="participant.cpp" />
     <ClCompile Include="check_update.cpp" />

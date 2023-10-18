@@ -58,6 +58,8 @@ string my_nick;
 void successLogin(string inputId);
 vector<vector<string>> getPtcpt(string myId);
 vector<string> useSpeaker(string myId);
+string loginCheck(string myId);
+
 
 // 이전 DM 조회
 void getMyDM(string myId) {
@@ -831,6 +833,7 @@ void inputLogin(string inputId, string inputPw) {
 void successLogin(string inputId) {
     int select;
     string action;
+    string loginYN = "";
     system("cls");
 
     cout << "\n▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
@@ -845,8 +848,16 @@ void successLogin(string inputId) {
 
     if (select == 1)
     {
-        // 채팅방 입장
-        client(inputId);
+        // 로그인 중복체크.
+        loginYN = loginCheck(inputId);
+
+        if (loginYN == "Y") {
+            cout << "해당 ID는 이미 로그인 중으로 채팅방에 참여하실 수 없습니다. " << endl;
+        }
+        else if (loginYN == "N") {
+            // 채팅방 입장
+            client(inputId);
+        }
     }
     else if (select == 2)
     {
@@ -897,11 +908,10 @@ int main(int argc, char* argv[])
 
     while(true)
     {
-        cout << "▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
+        cout << "▽▽▽▽▽▽▽▽▽▽▽" << endl;
         cout << "  1. 로그인 " << endl;
         cout << "  2. 회원가입 " << endl;
-        cout << "  3. 그룹별 랭킹 조회 " << endl;
-        cout << "△△△△△△△△△△△△△△" << endl;
+        cout << "△△△△△△△△△△△" << endl;
 #ifdef USE_BATCH
         select = atoi(argv[1]);
 #else
@@ -920,11 +930,6 @@ int main(int argc, char* argv[])
         else if (select == 2) 
         {
             // 회원가입
-            inputMembership();
-        }
-        else if (select == 3) 
-        {
-            // 그룹별 랭킹 조회
             inputMembership();
         }
         else 

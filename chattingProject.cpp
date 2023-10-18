@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #define MAX_SIZE 1024
-#define USE_BATCH
+// #define USE_BATCH
 
 //색상
 enum {
@@ -49,6 +49,7 @@ const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
 const string password = "1122"; // 데이터베이스 접속 비밀번호
 int current_state = 0;
+int updateSelect;
 string friendSend, friendAccept;
 
 SOCKET client_sock;
@@ -58,12 +59,16 @@ string my_nick;
 void successLogin(string inputId);
 vector<vector<string>> getPtcpt(string myId);
 vector<string> useSpeaker(string myId);
+void myPage(string myId);
+void update(string myId, int updateSelect, string updateContents); // DB 업데이트
+string checkCondition(int conditionSelect); // 각 항목별로 조건 판별 후 string으로 반환
 string loginCheck(string myId);
 void getMyDM(string myId);
 void getBeforeChat(string myId);
 
 
-// 신청자 친구 목록 받고, 목록에 수락자 추가해서 반환
+
+// 신청자 친구 목록 받고, 목록에 수락자 추가 한 string 반환
 string getFriend(string sender, string accepter)
 {
     string query, frienList;
@@ -97,37 +102,7 @@ string getFriend(string sender, string accepter)
 
     return frienList;
 }
-//  반환 값 DB에 삽입
-void updateFriend(string sender, string accepter)
-{
-    sql::mysql::MySQL_Driver* driver;
-    sql::Connection* con;
-    sql::Statement* stmt;
-    sql::ResultSet* res;
 
-    try {
-        driver = sql::mysql::get_mysql_driver_instance();
-        con = driver->connect(server, username, password);
-    }
-    catch (sql::SQLException& e) {
-        cout << "Could not connect to server. Error message: " << e.what() << endl;
-        exit(1);
-    }
-
-    // db 한글 저장을 위한 셋팅 
-    stmt = con->createStatement();
-    stmt->execute("set names euckr");
-    if (stmt) { delete stmt; stmt = nullptr; }
-
-    con->setSchema("chattingproject");
-
-    stmt = con->createStatement();
-    string query = "UPDATE member SET friendList = '" + getFriend(sender, accepter) + "' WHERE (memberID = '" + sender + "')"; // DB에 삽입
-    stmt->execute(query);
-
-    delete stmt;
-    delete con;
-}
 
 // 채팅 받아옴
 int chat_recv() {
@@ -171,10 +146,8 @@ int chat_recv() {
             }
             else if (stream3 == "/S" || stream3 == "/s") // 송신자 : /S 그룹이름 수신자 메세지
             {
-                cout << "첫 번째 엘이프 my_nick : " << my_nick << endl;
                 if (stream3 == "/S" && stream5 == my_nick)
                 {
-                    cout << "두 번째 이프" << endl;
                     int eraseLength = 0;
                     eraseLength = size(stream1) + size(stream2) + size(stream3) + size(stream4) + size(stream5) + 4;
                     msg.erase(0, eraseLength);
@@ -218,7 +191,7 @@ int chat_recv() {
 }
 
 // 받아온 채팅 출력, 채팅 보냄
-void client(string inputId)
+void client(string myId)
 {
     WSADATA wsa;
 
@@ -229,7 +202,7 @@ void client(string inputId)
     vector<vector<string>> pList;
 
     if (!code) {
-        my_nick = inputId;
+        my_nick = myId;
 
         client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); // 
 
@@ -272,8 +245,8 @@ void client(string inputId)
                         // 여기에 친구 DB삽입
                         // 전역변수 : friendSend = 친구 신청자, friendAccept = 친구 수락자
                         text = "/D " + friendSend + " " + friendAccept + "가 친구신청을 수락했습니다.";
-                        updateFriend(friendSend, friendAccept);
-                        updateFriend(friendAccept, friendSend);
+                        update(myId, 5, getFriend(friendSend, friendAccept));
+                        update(myId, 5, getFriend(friendAccept, friendSend));
                         break;
                     }
                     else if (text == "N")
@@ -298,7 +271,7 @@ void client(string inputId)
                 {
                     int end = 0;
                     string newFrdNum, message;
-                    pList = getPtcpt(inputId);
+                    pList = getPtcpt(myId);
                     while (end == 0)
                     {
                         cout << "DM 할 사람 id 입력 : ";
@@ -337,7 +310,7 @@ void client(string inputId)
                 {
                     int end = 0;
                     string newFrdNum;
-                    pList = getPtcpt(inputId);
+                    pList = getPtcpt(myId);
                     while (end == 0)
                     {
                         cout << "친구신청 할 사람 id 입력 : ";
@@ -375,7 +348,7 @@ void client(string inputId)
                     vector<string> groupInfo;
                     string groupName, message;
                     int gSize = groupInfo.size();
-                    groupInfo = useSpeaker(inputId);
+                    groupInfo = useSpeaker(myId);
 
                     groupName = groupInfo[0];
                     cout << "[" << groupName << "]group에게 보낼 메세지 입력 : ";
@@ -406,7 +379,7 @@ void client(string inputId)
 }
 
 // db에 회원가입 정보 삽입
-void insertDB(string id, string pw, string name, string phone)
+void insertMemberInfo(string id, string pw, string name, string phone)
 {
     // MySQL Connector/C++ 초기화
     sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
@@ -470,7 +443,7 @@ void insertDB(string id, string pw, string name, string phone)
     delete con;
 } 
 
-// db에서 모든 id 받아와서 string으로 붙이기
+// db에서 모든 id 받아와서 string으로 붙이고 반환
 string makeAllID()
 {
     string allID;
@@ -513,123 +486,52 @@ string makeAllID()
 // 회원가입 조건 확인
 void inputMembership()
 {
-    string id, name, phone, pw, allID = makeAllID();
-    bool isalphaYN = false, pwCheck = false, phoneCheck = false;
-
+    string id, pw, name, phone;
+    id = checkCondition(1);
+    pw = checkCondition(2);
+    name = checkCondition(3);
+    phone = checkCondition(4);
+    insertMemberInfo(id, pw, name, phone);
+}
+// 내 정보 수정
+void updateMemberInfo(string myId)
+{
     while (true)
     {
-        cout << "사용할 ID를 입력해 주세요(영어+숫자, 20자 이내) : ";
-        cin >> id;
-        // cout << id << endl;
-        for (int i = 0; i < size(id); i++) // 영어, 숫자 만 있는지 체크
-        {
-            if (isalnum(id[i]) == 0)
-            {
-                isalphaYN = true;
-            }
-        }
+        system("cls");
+        cout << "\n▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
+        cout << "  1. 초기 화면으로 돌아가기 " << endl;
+        cout << "  2. 비밀번호 수정 " << endl;
+        cout << "  3. 이름 수정 " << endl;
+        cout << "  4. 전화번호 수정 " << endl;
+        cout << "△△△△△△△△△△△△△△" << endl;
+        cin >> updateSelect;
 
-        if (isalphaYN)
+        if (updateSelect < 1 && updateSelect > 4)
         {
-            cout << "아이디는 영어와 숫자 만 입력이 가능합니다." << endl;
-            isalphaYN = false;
+            cout << "잘못 입력하셨습니다." << endl;
         }
         else
         {
-            if (allID.find(id) != string::npos) // id 중복 체크
+
+            if (updateSelect == 1)
             {
-                cout << "중복된 ID가 있습니다." << endl;
+                successLogin(myId);
             }
-            else
+            else 
             {
-                while (pwCheck == false)
-                {
-                    cout << "사용할 PW를 입력해 주세요(숫자 6자리 만) : ";
-                    cin >> pw;
-                    if (size(pw) != 6)
-                    {
-                        pwCheck = true;
-                    }
-                    else
-                    {
-                        for (int i = 0; i < 6; i++)
-                        {
-                            if (isdigit(pw[i]) == 0)
-                            {
-                                pwCheck = true;
-                            }
-                        }
-                    }
-                    if (pwCheck)
-                    {
-                        cout << "비밀번호는 숫자 6자리 만 입력이 가능합니다." << endl;
-                        pwCheck = false;
-                    }
-                    else
-                    {
-                        pwCheck = true;
-                    }
-                }
-
-                while (true)
-                {
-                    cout << "이름을 입력해 주세요(10자 이하) : ";
-                    cin >> name;
-                    if (size(name) < 11)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        cout << "이름은 10자 이하여야 합니다." << endl;
-                    }
-
-                }
-
-                while (phoneCheck == false)
-                {
-                    cout << "전화번호를 입력해 주세요(슬래쉬제외 11자리) : ";
-                    cin >> phone;
-
-                    if (size(phone) != 11) // 11자리 체크
-                    {
-                        cout << "11자리 오류" << endl;
-                        phoneCheck = true;
-                    }
-                    else // 11자리면
-                    {
-                        for (int i = 0; i < size(phone); i++)
-                        {
-                            if (isdigit(phone[i]) == 0) // 숫자 체크
-                            {
-                                cout << "숫자아님오류" << endl;
-                                phoneCheck = true;
-                            }
-                        }
-                    }
-
-                    if (phoneCheck == false)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        cout << "전화번호는 11개의 숫자이어야 합니다." << endl;
-                        phoneCheck = false;
-                    }
-                }
-
-                insertDB(id, pw, name, phone);
-                break;
+                update(myId, updateSelect, checkCondition(updateSelect));
+                myPage(myId);
             }
+            break;
         }
-
     }
+    
 }
 
-
 // 회원 정보 조회
-void myPage(string id) {
+void myPage(string myId) {
+    string action, pw, chckPW;
     // MySQL Connector/C++ 초기화
     sql::mysql::MySQL_Driver* driver;
     sql::Connection* con;
@@ -655,21 +557,50 @@ void myPage(string id) {
 
     // 데이터베이스 쿼리 실행
     stmt = con->createStatement();
-    string sql = "SELECT memberID,passWord, name, phoneNumber, groupName, friendList FROM member WHERE memberID ='" + id +"'";
+    string sql = "SELECT memberID,passWord, name, phoneNumber, groupName, friendList FROM member WHERE memberID ='" + myId + "'";
     res = stmt->executeQuery(sql);
 
-    //pstmt->setString(5, groupName);
-    //pstmt->execute();
     while (res->next()) {
-        cout << "\n  ◇◆◇  회원 정보 조회  ◆◇◆  " << endl;
+        pw = res->getString("passWord");
+        cout << "\n  ◇◆◇  내 정보 조회  ◆◇◆  " << endl;
         cout << "   ID : " << res->getString("memberID") << endl;
+        cout << "   PW : " << pw << endl;
         cout << "   NAME : " << res->getString("name") << endl;
         cout << "   PHONENUMBER : " << res->getString("phoneNumber") << endl;
         cout << "   GROUP : " << res->getString("groupName") << endl;
         cout << "   FRIEND : " << res->getString("friendList") << endl;
         cout << "  ◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆  " << endl;
     }
+    
 
+    while (true)
+    {
+        cout << "\n  정보 수정 : Y, 뒤로 가기 : N" << endl;
+        cin >> action;
+        if (action == "Y")
+        {
+            cout << "비밀번호를 입력하세요 : ";
+            cin >> chckPW;
+            if (chckPW == pw)
+            {
+                updateMemberInfo(myId);
+                break;
+            }
+            else
+            {
+                cout << "비밀번호가 일치하지 않습니다." << endl;
+            }
+        }
+        else if (action == "N")
+        {
+            successLogin(myId);
+            break;
+        }
+        else
+        {
+            cout << "잘못 입력하셨습니다." << endl;
+        }
+    }
     delete res;
     delete con;
 }
@@ -789,7 +720,7 @@ void inputLogin(string inputId, string inputPw) {
 }
 
 
-void successLogin(string inputId) {
+void successLogin(string myId) {
     int select;
     string action;
     string loginYN = "";
@@ -798,7 +729,7 @@ void successLogin(string inputId) {
     cout << "\n▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
     cout << "  1. 채팅방 입장 " << endl;
     cout << "  2. 채팅방 참가자 조회 " << endl;
-    cout << "  3. 회원정보 조회 " << endl;
+    cout << "  3. 내 정보 조회 " << endl;
     cout << "  4. 친구정보 조회 " << endl;
     cout << "  5. 이전 DM 보기 " << endl;
     cout << "△△△△△△△△△△△△△△" << endl;
@@ -808,7 +739,7 @@ void successLogin(string inputId) {
     if (select == 1)
     {
         // 로그인 중복체크.
-        loginYN = loginCheck(inputId);
+        loginYN = loginCheck(myId);
 
         if (loginYN == "Y") {
             cout << "해당 ID는 이미 로그인 중으로 채팅방에 참여하실 수 없습니다. " << endl;
@@ -816,40 +747,40 @@ void successLogin(string inputId) {
         else if (loginYN == "N") {
             // 채팅방 입장
             system("cls");
-            client(inputId);
+            client(myId);
         }
     }
     else if (select == 2)
     {
         // 채팅방 참가자 조회
         system("cls");
-        getPtcpt(inputId);
+        getPtcpt(myId);
     }
     else if (select == 3)
     {
         // 회원정보 조회
         system("cls");
-        myPage(inputId);
+        myPage(myId);
     }
     else if (select == 4)
     {
         // 친구정보 조회
         system("cls");
-        getMyfriendInfo(inputId);
+        getMyfriendInfo(myId);
 
     }
     else if (select == 5) 
     {
         // 이전 DM 조회
         system("cls");
-        getMyDM(inputId);
+        getMyDM(myId);
     }
 
     while (1) {
-        cout << "\n이전으로 가기 (y)" << endl;
+        cout << "\n이전으로 가기 (Y)" << endl;
         cin >> action;
-        if (action == "y") {
-            successLogin(inputId);
+        if (action == "Y") {
+            successLogin(myId);
             break;
         }
         else {

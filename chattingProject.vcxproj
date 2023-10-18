@@ -133,6 +133,7 @@
     <ClCompile Include="beforeChat.cpp" />
     <ClCompile Include="chattingProject.cpp" />
     <ClCompile Include="participant.cpp" />
+    <ClCompile Include="check_update.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

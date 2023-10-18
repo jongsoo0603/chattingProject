@@ -59,55 +59,8 @@ void successLogin(string inputId);
 vector<vector<string>> getPtcpt(string myId);
 vector<string> useSpeaker(string myId);
 string loginCheck(string myId);
-
-
-// 이전 DM 조회
-void getMyDM(string myId) {
-    // MySQL Connector/C++ 초기화
-    sql::mysql::MySQL_Driver* driver;
-    sql::Connection* con;
-    sql::Statement* stmt;
-    sql::ResultSet* res;
-
-    try {
-        driver = sql::mysql::get_mysql_driver_instance();
-        con = driver->connect(server, username, password);
-    }
-    catch (sql::SQLException& e) {
-        cout << "Could not connect to server. Error message: " << e.what() << endl;
-        exit(1);
-    }
-
-    // 데이터베이스 선택
-    con->setSchema("chattingproject");
-
-    // db 한글 저장을 위한 셋팅 
-    stmt = con->createStatement();
-    stmt->execute("set names euckr");
-    if (stmt) { delete stmt; stmt = nullptr; }
-
-    // 데이터베이스 쿼리 실행
-    stmt = con->createStatement();
-    string sql = "SELECT memberID, chatContent, chatDateTime FROM chat WHERE receiverID ='" + myId +"' and DM = 1";
-    res = stmt->executeQuery(sql);
-
-
-    // 이전 DM 출력
-    cout << "이전 DM" << endl;
-    if (res) {
-        while (res->next()) {
-            cout << "[" << res->getString("chatDateTime") << " ] ";
-            cout << res->getString("memberID") << " : ";
-            cout << res->getString("chatContent") << endl;
-        }
-        delete res;
-        delete con;
-    }
-    else {
-        cout << "이전 DM이 없습니다." << endl;
-    }
-}
-
+void getMyDM(string myId);
+void getBeforeChat(string myId);
 
 
 // 신청자 친구 목록 받고, 목록에 수락자 추가해서 반환
@@ -297,6 +250,12 @@ void client(string inputId)
 
         // 전체 채팅 받아서 출력
         std::thread th2(chat_recv); 
+
+        // 이전 대화내용 출력
+        getBeforeChat(inputId);
+
+        cout << "        §    채 팅 방    입 장    §     " << endl;
+        cout << "※ 기타 기능 사용하기 ( '/d' : DM, '/f' : 친구 신청, ‘/s’ : 확성기 ) \n" << endl;
 
         while (1) 
         {
@@ -856,6 +815,7 @@ void successLogin(string inputId) {
         }
         else if (loginYN == "N") {
             // 채팅방 입장
+            system("cls");
             client(inputId);
         }
     }

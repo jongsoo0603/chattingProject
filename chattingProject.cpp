@@ -1,5 +1,7 @@
 ﻿#pragma comment(lib, "ws2_32.lib")
 
+
+
 #include <iostream>
 #include <string>
 #include <mysql/jdbc.h>
@@ -12,183 +14,123 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <windows.h>
+
+
 
 #define MAX_SIZE 1024
 #define USE_BATCH
 
-//색상
-enum {
-    BLACK,
-    DARK_BLUE,
-    DARK_GREEN,
-    DARK_SKYBLUE,
-    DARK_RED,
-    DARK_VOILET,
-    DAKR_YELLOW,
-    GRAY,
-    DARK_GRAY,
-    BLUE,
-    GREEN,
-    SKYBLUE,
-    RED,
-    VIOLET,
-    YELLOW,
-    WHITE,
-};
-
-// 콘솔 텍스트 색상 변경해주는 함수
-void setColor(unsigned short text) {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), text);
-}
-
-
 using namespace std;
 
-const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
-const string username = "root"; // 데이터베이스 사용자
-const string password = "1122"; // 데이터베이스 접속 비밀번호
-int current_state = 0;
-int updateSelect;
-string friendSend, friendAccept;
 
+
+//색상 선언
+enum {
+    BLACK = 0,
+    GRAY = 7,
+    BLUE = 9,
+    GREEN,
+    RED = 12,
+    VIOLET,
+    YELLOW,
+    WHITE
+};
+
+
+
+const string server = "tcp://127.0.0.1:3306";                           // 데이터베이스 주소
+const string username = "root";                                         // 데이터베이스 사용자
+const string password = "1122";                                         // 데이터베이스 접속 비밀번호
 SOCKET client_sock;
-string my_nick;
-
-
-void successLogin(string inputId);
-vector<vector<string>> getPtcpt(string myId);
-vector<string> useSpeaker(string myId);
-void myPage(string myId);
-void update(string myId, int updateSelect, string updateContents); // DB 업데이트
-string checkCondition(int conditionSelect); // 각 항목별로 조건 판별 후 string으로 반환
-string loginCheck(string myId);
-void getMyDM(string myId);
-void getBeforeChat(string myId);
+string my_nick, friendSend, friendAccept;
+int current_state = 0;                                                  // 1 : 친구신청 진행중인 상태일 때, 0 : 아무 상태도 아님
+int updateSelect;
 
 
 
-// 신청자 친구 목록 받고, 목록에 수락자 추가 한 string 반환
-string getFriend(string sender, string accepter)
-{
-    string query, frienList;
+// participant.cpp
+vector<vector<string>> getPtcpt(string myId);                           // 채팅 참가자 목록 출력 (전체)
+vector<string> useSpeaker(string myId);                                 // 확성기 사용 (같은 그룹내 ID 조회)
+string loginCheck(string myId);                                         // 로그인 중복체크 (참가자 중 조회)
 
-    sql::mysql::MySQL_Driver* driver;
-    sql::Connection* con;
-    sql::Statement* stmt;
-    sql::ResultSet* res;
+// check_update.cpp
+void update(string myId, int updateSelect, string updateContents);      // DB 업데이트
+string checkCondition(int conditionSelect);                             // 각 항목별로 조건 판별 후 string으로 반환
+
+// beforeChat.cpp
+void getMyDM(string myId);                                              // 이전 DM 조회 (전체일자 조회)
+void getBeforeChat(string myId);                                        // 이전 전체 대화 내용 조회 (당일건만 조회)
+
+// -chattingFunc.cpp
+string inputDM(string myId);                                            // DM 기능 입력부
+void outputDM(string stream1, string stream2, string stream3, string stream4, string msg, string myId);                      // DM 기능 출력부
+string inputFriend(string myId);                                        // 친구추가 기능 입력부
+tuple<string, string, int> outputFriend(string stream1, string stream3, string stream4, string myId);                        // 친구추가 기능 출력부
+string inputSpeaker(string myId, SOCKET client_sock);                   // 확성기 기능 입력부
+void outputSpeaker(string stream1, string stream2, string stream3, string stream4, string stream5, string msg, string myId); // 친구추가 기능 출력부
+
+// - chattingProject.cpp
+void textcolor(int foreground, int background);                         // 콘솔 텍스트 색상 변경해주는 함수
+string getFriend(string sender, string accepter);                       // 신청자 친구 목록 받고, 목록에 수락자 추가 한 string 반환
+void insertMemberInfo(string id, string pw, string name, string phone); // db에 회원가입 정보 삽입
+string makeAllID();                                                     // db에서 모든 id 받아와서 string으로 붙이고 반환
+void inputMembership();                                                 // 회원가입 조건 확인
+void myPage(string myId);                                               // 내 정보 조회
+void updateMemberInfo(string myId);                                     // 내 정보 수정
+void getMyfriendInfo(string myId);                                      // 친구 정보 조회
+void inputLogin(string inputId, string inputPw);                        // 로그인 조건 확인
+void successLogin(string inputId);                                      // 로그인 성공 후 기능 선택페이지
+int chat_recv();                                                        // 채팅 받아옴
+void client(string myId);                                               // 받아온 채팅 출력, 채팅 보냄
 
 
-    try {
-        driver = sql::mysql::get_mysql_driver_instance();
-        con = driver->connect(server, username, password);
-    }
-    catch (sql::SQLException& e) {
-        cout << "Could not connect to server. Error message: " << e.what() << endl;
-        exit(1);
-    }
-
-    con->setSchema("chattingproject");
-
-    stmt = con->createStatement();
-    query = "SELECT friendList FROM member WHERE memberID = '" + sender + "'";
-    res = stmt->executeQuery(query); // 신청자 친구 목록 받고
-    if(res->next())
-        frienList = res->getString("friendList") + "," + accepter; // 목록에 수락자 추가하고
-
-    delete res;
-    delete stmt;
-    delete con;
-
-    return frienList;
-}
 
 
-// 채팅 받아옴
-int chat_recv() {
-    char buf[MAX_SIZE] = { };
-    string msg;
 
-    while (1) {
-        ZeroMemory(&buf, MAX_SIZE);
-        if (recv(client_sock, buf, MAX_SIZE, 0) > 0) {
-            msg = buf;
-            // cout << "buf :" << buf << endl;
-            std::stringstream ss(msg);  // 문자열을 스트림화
-            string stream1, stream2, stream3, stream4, stream5;
-            // 스트림을 통해, 문자열을 공백 분리해 변수에 할당. 보낸 사람의 이름만 user에 저장됨.
-            ss >> stream1; // 첫 번째 단어
-            ss >> stream2; // 두 번째 단어
-            ss >> stream3; // 세 번째 단어
-            ss >> stream4; // 네 번째 단어
-            ss >> stream5; // 다섯 번째 단어
 
-            if (stream3 == "/D" || stream3 == "/d") // DM
-            {
-                int eraseLength = 0;
-                eraseLength = size(stream1) + size(stream2) + size(stream3) + size(stream4) + 3;
-                msg.erase(0, eraseLength);
-                if (stream3 == "/D"  && stream4 == my_nick)
-                {
-                    cout << stream1 << "의 귓속말 :" << msg << endl;
-                }
-                
-            }
-            else if (stream3 == "/F" || stream3 == "/f") // 친구신청
-            {
-                if (stream3 == "/F" && stream4 == my_nick)
-                {
-                    friendSend = stream1;
-                    friendAccept = stream4;
-                    cout << "ID '" << stream1 << "'이(가) 친구 요청을 보냈습니다. 수락하시겠습니까?(Y, N) :" << endl;
-                    current_state = 1;
-                }
-            }
-            else if (stream3 == "/S" || stream3 == "/s") // 송신자 : /S 그룹이름 수신자 메세지
-            {
-                if (stream3 == "/S" && stream5 == my_nick)
-                {
-                    int eraseLength = 0;
-                    eraseLength = size(stream1) + size(stream2) + size(stream3) + size(stream4) + size(stream5) + 4;
-                    msg.erase(0, eraseLength);
-                    if (stream4 == "red")
-                    {
-                        setColor(RED);
-                    }
-                    else if (stream4 == "green")
-                    {
-                        setColor(GREEN);
-                    }
-                    else if (stream4 == "blue")
-                    {
-                        setColor(BLUE);
-                    }
-                    else if (stream4 == "yellow")
-                    {
-                        setColor(YELLOW);
-                    }
-                    cout << stream1 << "의 그룹 메세지 :" << msg << endl;
-                    setColor(WHITE);
-                }
-                
-            }
-            else // 명령어가 없을 때
-            {
+// 채팅 프로그램 - 메인.
+int main(int argc, char* argv[])
+{  
+    int select;
 
-                if (stream1 != my_nick) 
-                {
-                    cout << msg << endl;
-                }
-            }
-
-            
+    while(true)
+    {
+        system("cls");
+        cout << "▽▽▽▽▽▽▽▽▽▽▽" << endl;
+        cout << "  1. 로그인 " << endl;
+        cout << "  2. 회원가입 " << endl;
+        cout << "△△△△△△△△△△△" << endl;
+#ifdef USE_BATCH
+        select = atoi(argv[1]);
+#else
+        cin >> select;
+        system("cls");
+#endif
+        if (select == 1) 
+        {
+            // 로그인
+#ifdef USE_BATCH
+            inputLogin(argv[2], argv[3]);
+#else
+            inputLogin("", "");
+#endif
+            break;
         }
-        else {
-            cout << "Server Off" << endl;
-            return -1;
+        else if (select == 2) 
+        {
+            // 회원가입
+            inputMembership();
+        }
+        else 
+        {
+            cout << "\n잘못 입력하셨습니다." << endl;
         }
     }
 }
+
+
+
+
 
 // 받아온 채팅 출력, 채팅 보냄
 void client(string myId)
@@ -204,7 +146,7 @@ void client(string myId)
     if (!code) {
         my_nick = myId;
 
-        client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); // 
+        client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
         // 연결할 서버 정보 설정 부분
         SOCKADDR_IN client_addr = {};
@@ -222,27 +164,48 @@ void client(string myId)
         }
 
         // 전체 채팅 받아서 출력
-        std::thread th2(chat_recv); 
+        std::thread th2(chat_recv);
 
         // 이전 대화내용 출력
         getBeforeChat(myId);
+        cout << endl;
+        textcolor(VIOLET, WHITE);
+        cout << "#########################################################################";
+        textcolor(GRAY, BLACK);
+        cout << endl;
+        textcolor(VIOLET, WHITE);
+        cout << "#                                                                       #";
+        textcolor(GRAY, BLACK);
+        cout << endl;
+        textcolor(VIOLET, WHITE);
+        cout << "#                    §    채 팅 방    입 장    §                        #";
+        textcolor(GRAY, BLACK);
+        cout << endl;
+        textcolor(VIOLET, WHITE);
+        cout << "# ※ 기타 기능 사용하기 ( '/d' : DM, '/f' : 친구 신청, ‘/s’ : 확성기 )※  #";
+        textcolor(GRAY, BLACK);
+        cout << endl;
+        textcolor(VIOLET, WHITE);
+        cout << "#                                                                       #";
+        textcolor(GRAY, BLACK);
+        cout << endl;
+        textcolor(VIOLET, WHITE);
+        cout << "#########################################################################";
+        textcolor(GRAY, BLACK);
+        cout << endl << endl;
 
-        cout << "        §    채 팅 방    입 장    §     " << endl;
-        cout << "※ 기타 기능 사용하기 ( '/d' : DM, '/f' : 친구 신청, ‘/s’ : 확성기 ) \n" << endl;
-
-        while (1) 
+        while (1)
         {
             string text;
             std::getline(cin, text);
-
-            if (current_state == 1) // 친구신청 진행중인 상태일 때
+            // 친구신청 진행중인 상태일 때
+            if (current_state == 1) 
             {
                 while (true)
                 {
                     if (text == "Y")
                     {
                         cout << friendSend << "의 친구신청을 수락했습니다." << endl;
-                        // 여기에 친구 DB삽입
                         // 전역변수 : friendSend = 친구 신청자, friendAccept = 친구 수락자
                         text = "/D " + friendSend + " " + friendAccept + "가 친구신청을 수락했습니다.";
                         update(myId, 5, getFriend(friendSend, friendAccept));
@@ -264,119 +227,121 @@ void client(string myId)
                 }
                 current_state = 0;
             }
-            else if(current_state == 0)// 아무 상태도 아닐 때
+            else if (current_state == 0)// 아무 상태도 아닐 때
             {
                 //  명령어 전처리 과정
                 if (text == "/d")
                 {
-                    int end = 0;
-                    string newFrdNum, message;
-                    pList = getPtcpt(myId);
-                    while (end == 0)
-                    {
-                        cout << "DM 할 사람 id 입력 : ";
-                        cin >> newFrdNum;
-                        vector<string> newFriend;
-                        for (int i = 1; i < pList.size() + 1; i++)
-                        {
-                            newFriend = pList[i - 1];
-                            if (newFrdNum == newFriend[1])
-                            {
-                                if (newFriend[2] == "N")
-                                {
-                                    cout << "친구가 아닌 참가자에게는 DM 할 수 없습니다." << endl;
-                                    end = 1;
-                                    break;
-                                }
-                                else if (newFriend[2] == "Y")
-                                {
-                                    cout << "보낼 메세지 입력 : ";
-                                    getline(cin, message);
-                                    getline(cin, message);
-                                    text = "/D " + newFriend[1] + " " + message; // 송신자 : /D 수신자 메세지
-                                    end = 1;
-                                    break;
-                                }
-                            }
-                        }
-                        if (end == 0)
-                        {
-                            cout << "\n            * 입력 오류 *" << endl;
-                            cout << "### 참가자 목록의 id를 입력하세요. ###" << endl;
-                        }
-                    }
+                    text = inputDM(myId);
                 }
                 else if (text == "/f")
                 {
-                    int end = 0;
-                    string newFrdNum;
-                    pList = getPtcpt(myId);
-                    while (end == 0)
-                    {
-                        cout << "친구신청 할 사람 id 입력 : ";
-                        cin >> newFrdNum;
-                        vector<string> newFriend;
-                        for (int i = 1; i < pList.size() + 1; i++)
-                        {
-                            newFriend = pList[i - 1];
-                            if (newFrdNum == newFriend[1])
-                            {
-                                if (newFriend[2] == "N")
-                                {
-                                    text = "/F " + newFriend[1]; // 송신자 : /F 수신자
-                                    end = 1;
-                                    break;
-                                }
-                                else if (newFriend[2] == "Y")
-                                {
-                                    cout << "이미 친구입니다." << endl;
-                                    end = 1;
-                                    break;
-                                }
-                            }
-                        }
-                        if (end == 0)
-                        {
-                            cout << "\n            * 입력 오류 *" << endl;
-                            cout << "### 참가자 목록의 id를 입력하세요. ###" << endl;
-                        }
-                    }
-                    
+                    text = inputFriend(myId);
                 }
                 else if (text == "/s")
                 {
-                    vector<string> groupInfo;
-                    string groupName, message;
-                    int gSize = groupInfo.size();
-                    groupInfo = useSpeaker(myId);
-
-                    groupName = groupInfo[0];
-                    cout << "[" << groupName << "]group에게 보낼 메세지 입력 : ";
-                    // getline(cin, message);
-                    getline(cin, message);
-
-                    for (int i = 1; i < groupInfo.size(); i++)
-                    {
-                        if (groupInfo.at(i) != my_nick)
-                        {
-                            text = "/S " + groupName + " " + groupInfo.at(i) + " " + message; // 송신자 : /S 그룹이름 수신자 메세지
-
-                            const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-                            send(client_sock, buffer, strlen(buffer), 0); // 보내기
-                        }
-                        text = "";
-                    }
+                    text = inputSpeaker(myId, client_sock);
                 }
             }
-            const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-            send(client_sock, buffer, strlen(buffer), 0); // 보내기
+            if (!text.empty()) {
+                const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
+                send(client_sock, buffer, strlen(buffer), 0); // 보내기
+            }
         }
         th2.join();
         closesocket(client_sock);
     }
-
     WSACleanup();
 }
+
+
+// 채팅 받아옴
+int chat_recv() {
+    char buf[MAX_SIZE] = { };
+    string msg;
+    while (1)
+    {
+        ZeroMemory(&buf, MAX_SIZE);
+        if (recv(client_sock, buf, MAX_SIZE, 0) > 0) 
+        {
+            msg = buf;
+            // cout << "buf :" << buf << endl;
+            std::stringstream ss(msg);  // 문자열을 스트림화
+            string stream1, stream2, stream3, stream4, stream5;
+            // 스트림을 통해, 문자열을 공백 분리해 변수에 할당.
+            ss >> stream1; // 첫 번째 단어
+            ss >> stream2; // 두 번째 단어
+            ss >> stream3; // 세 번째 단어
+            ss >> stream4; // 네 번째 단어
+            ss >> stream5; // 다섯 번째 단어
+
+            
+
+            if (stream3 == "/D" || stream3 == "/d") // DM (송신자 : /F 수신자 메세지)
+            {
+                outputDM(stream1, stream2, stream3, stream4, msg, my_nick);
+            }
+            else if (stream3 == "/F" || stream3 == "/f") // 친구신청 (송신자 : /F 수신자 메세지)
+            {
+                tie(friendSend, friendAccept, current_state) = outputFriend(stream1, stream3, stream4, my_nick);
+            }
+            else if (stream3 == "/S" || stream3 == "/s") // 팀채팅 (송신자 : /S 그룹이름 수신자 메세지)
+            {
+                outputSpeaker(stream1, stream2, stream3, stream4, stream5, msg, my_nick);
+            }
+            else // 명령어가 없을 때
+            {
+                
+                if (stream1 != my_nick)
+                {
+                    cout << msg << endl;
+                }
+            }
+        }
+        else
+        {
+            cout << "Server Off" << endl;
+            return -1;
+        }
+    }
+}
+
+
+// 신청자 친구 목록 받고, 목록에 수락자 추가 한 string 반환
+string getFriend(string sender, string accepter)
+{
+    string query, friendList;
+
+    sql::mysql::MySQL_Driver* driver;
+    sql::Connection* con;
+    sql::Statement* stmt;
+    sql::ResultSet* res;
+
+
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+
+    con->setSchema("chattingproject");
+
+    stmt = con->createStatement();
+    query = "SELECT friendList FROM member WHERE memberID = '" + sender + "'";
+    res = stmt->executeQuery(query); // 신청자 친구 목록 받고
+    if (res->next())
+        friendList = res->getString("friendList") + "," + accepter; // 목록에 수락자 추가하고
+
+    delete res;
+    delete stmt;
+    delete con;
+
+    return friendList;
+}
+
 
 // db에 회원가입 정보 삽입
 void insertMemberInfo(string id, string pw, string name, string phone)
@@ -435,13 +400,14 @@ void insertMemberInfo(string id, string pw, string name, string phone)
     pstmt->execute();
 
     cout << "\n☆★☆ 회원가입 완료 ☆★☆" << endl;
-    cout << "☆회원님은 "<< groupName <<"그룹입니다.☆" << endl;
+    cout << "☆회원님은 " << groupName << "그룹입니다.☆" << endl;
     cout << endl;
 
     // MySQL Connector/C++ 정리
     delete pstmt;
     delete con;
-} 
+}
+
 
 // db에서 모든 id 받아와서 string으로 붙이고 반환
 string makeAllID()
@@ -481,7 +447,8 @@ string makeAllID()
     delete con;
 
     return allID;
-} 
+}
+
 
 // 회원가입 조건 확인
 void inputMembership()
@@ -493,6 +460,8 @@ void inputMembership()
     phone = checkCondition(4);
     insertMemberInfo(id, pw, name, phone);
 }
+
+
 // 내 정보 수정
 void updateMemberInfo(string myId)
 {
@@ -518,18 +487,19 @@ void updateMemberInfo(string myId)
             {
                 successLogin(myId);
             }
-            else 
+            else
             {
                 update(myId, updateSelect, checkCondition(updateSelect));
+                system("cls");
                 myPage(myId);
             }
             break;
         }
     }
-    
 }
 
-// 회원 정보 조회
+
+// 내 정보 조회
 void myPage(string myId) {
     string action, pw, chckPW;
     // MySQL Connector/C++ 초기화
@@ -571,7 +541,7 @@ void myPage(string myId) {
         cout << "   FRIEND : " << res->getString("friendList") << endl;
         cout << "  ◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆  " << endl;
     }
-    
+
 
     while (true)
     {
@@ -606,6 +576,7 @@ void myPage(string myId) {
     delete con;
 }
 
+
 // 친구 정보 조회
 void getMyfriendInfo(string myId) {
     string friendId;
@@ -638,7 +609,7 @@ void getMyfriendInfo(string myId) {
     res = stmt->executeQuery(sql);
 
     while (res->next()) {
-        cout << "친구 List : "<< res->getString("friendList") << endl;
+        cout << "친구 List : " << res->getString("friendList") << endl;
     }
 
     delete res;
@@ -649,8 +620,10 @@ void getMyfriendInfo(string myId) {
     myPage(friendId);
 }
 
+
 // 로그인 조건 확인
 void inputLogin(string inputId, string inputPw) {
+
     //string inputId, inputPw;
     bool login = false, idYN = false, pwYN = false;
 
@@ -680,12 +653,12 @@ void inputLogin(string inputId, string inputPw) {
 
     // id,비번 입력받기.
     if (inputId.empty()) {
-        cout << "\nID를 입력해주세요.(영어+숫자, 20자 이내) : ";
+        cout << "\n\nID를 입력해주세요.(영어+숫자, 20자 이내) : ";
         cin >> inputId;
     }
 
     if (inputPw.empty()) {
-        cout << "비밀번호를 입력해주세요.(숫자, 6자 이내) : ";
+        cout << "\n비밀번호를 입력해주세요.(숫자, 6자 이내) : ";
         cin >> inputPw;
     }
 
@@ -705,6 +678,7 @@ void inputLogin(string inputId, string inputPw) {
 
     if (login) {
         //로그인 성공
+        my_nick = inputId;
         successLogin(inputId);
     }
     else {
@@ -715,12 +689,15 @@ void inputLogin(string inputId, string inputPw) {
         else if (!pwYN) {
             cout << "비밀번호가 일치하지 않습니다. 비밀번호를 확인해주세요." << endl;
         }
+        inputId.clear();
+        inputPw.clear();
         inputLogin(inputId, inputPw);
     }
 
 }
 
 
+// 로그인 성공 후 기능 선택페이지
 void successLogin(string myId) {
     int select;
     string action;
@@ -770,7 +747,7 @@ void successLogin(string myId) {
         getMyfriendInfo(myId);
 
     }
-    else if (select == 5) 
+    else if (select == 5)
     {
         // 이전 DM 조회
         system("cls");
@@ -791,42 +768,9 @@ void successLogin(string myId) {
 }
 
 
-
-// 채팅 프로그램 - 메인.
-
-int main(int argc, char* argv[])
-{  
-    int select;
-
-    while(true)
-    {
-        cout << "▽▽▽▽▽▽▽▽▽▽▽" << endl;
-        cout << "  1. 로그인 " << endl;
-        cout << "  2. 회원가입 " << endl;
-        cout << "△△△△△△△△△△△" << endl;
-#ifdef USE_BATCH
-        select = atoi(argv[1]);
-#else
-        cin >> select;
-#endif
-        if (select == 1) 
-        {
-            // 로그인
-#ifdef USE_BATCH
-            inputLogin(argv[2], argv[3]);
-#else
-            inputLogin("", "");
-#endif
-            break;
-        }
-        else if (select == 2) 
-        {
-            // 회원가입
-            inputMembership();
-        }
-        else 
-        {
-            cout << "\n잘못 입력하셨습니다." << endl;
-        }
-    }
+// 콘솔 텍스트 색상 변경해주는 함수
+void textcolor(int foreground, int background)
+{
+    int color = foreground + background * 16;
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }

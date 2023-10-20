@@ -29,7 +29,7 @@ string checkCondition(int conditionSelect)
     case 1:
         while (true)
         {
-            cout << "사용할 ID를 입력해 주세요(영어+숫자, 20자 이내) : ";
+            cout << "\n사용할 ID를 입력해 주세요(영어+숫자, 20자 이내) : ";
             cin >> id;
             for (int i = 0; i < size(id); i++) // 영어, 숫자 만 있는지 체크
             {
@@ -61,7 +61,7 @@ string checkCondition(int conditionSelect)
     case 2:
         while (true)
         {
-            cout << "사용할 PW를 입력해 주세요(숫자 6자리 만) : ";
+            cout << "\n사용할 PW를 입력해 주세요(숫자 6자리 만) : ";
             cin >> pw;
             if (size(pw) != 6)
             {
@@ -92,7 +92,7 @@ string checkCondition(int conditionSelect)
     case 3:
         while (true)
         {
-            cout << "이름을 입력해 주세요(10자 이하) : ";
+            cout << "\n이름을 입력해 주세요(10자 이하) : ";
             cin >> name;
             if (size(name) < 1 || size(name) > 10)
             {
@@ -109,7 +109,7 @@ string checkCondition(int conditionSelect)
     case 4:
         while (true)
         {
-            cout << "전화번호를 입력해 주세요(슬래쉬제외 11자리) : ";
+            cout << "\n전화번호를 입력해 주세요(슬래쉬제외 11자리) : ";
             cin >> phone;
 
             if (size(phone) != 11) // 11자리 체크
@@ -168,7 +168,7 @@ void update(string myId, int updateSelect, string updateContents)
         if (updateSelect == 2) updateItem = "password";
         else if (updateSelect == 3) updateItem = "name";
         else if (updateSelect == 4) updateItem = "phoneNumber";
-        else if (updateSelect == 5) updateItem = "frienList";
+        else if (updateSelect == 5) updateItem = "friendList";
     
         string query = "UPDATE member SET " + updateItem + " = '" + updateContents + "' WHERE (memberID = '" + myId + "')"; // DB에 삽입
         stmt->execute(query);

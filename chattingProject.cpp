@@ -198,7 +198,6 @@ void client(string myId)
         {
             string text;
             std::getline(cin, text);
-            cout << "text : " << text << ", current : " << current_state << endl;
             // 친구신청 진행중인 상태일 때
             if (current_state == 1) 
             {
@@ -241,7 +240,6 @@ void client(string myId)
                 }
                 else if (text == "/s")
                 {
-                    cout << "텍스트 : " << endl;
                     text = inputSpeaker(myId, client_sock);
                 }
             }
@@ -267,7 +265,7 @@ int chat_recv() {
         if (recv(client_sock, buf, MAX_SIZE, 0) > 0) 
         {
             msg = buf;
-            cout << "buf :" << buf << endl;
+            // cout << "buf :" << buf << endl;
             std::stringstream ss(msg);  // 문자열을 스트림화
             string stream1, stream2, stream3, stream4, stream5;
             // 스트림을 통해, 문자열을 공백 분리해 변수에 할당.
@@ -277,11 +275,7 @@ int chat_recv() {
             ss >> stream4; // 네 번째 단어
             ss >> stream5; // 다섯 번째 단어
 
-            cout << "1 : " << stream1 << endl;
-            cout << "2 : " << stream2 << endl;
-            cout << "3 : " << stream3 << endl;
-            cout << "4 : " << stream4 << endl;
-            cout << "5 : " << stream5 << endl;
+            
 
             if (stream3 == "/D" || stream3 == "/d") // DM (송신자 : /F 수신자 메세지)
             {
@@ -290,7 +284,6 @@ int chat_recv() {
             else if (stream3 == "/F" || stream3 == "/f") // 친구신청 (송신자 : /F 수신자 메세지)
             {
                 tie(friendSend, friendAccept, current_state) = outputFriend(stream1, stream3, stream4, my_nick);
-                cout << "friendSend, friendAccept, current_state : " << friendSend  << ", " << friendAccept << ", " << current_state << endl;
             }
             else if (stream3 == "/S" || stream3 == "/s") // 팀채팅 (송신자 : /S 그룹이름 수신자 메세지)
             {

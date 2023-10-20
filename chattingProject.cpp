@@ -17,8 +17,9 @@
 
 
 
+
 #define MAX_SIZE 1024
-#define USE_BATCH
+// #define USE_BATCH
 
 using namespace std;
 
@@ -720,7 +721,11 @@ void successLogin(string myId) {
         loginYN = loginCheck(myId);
 
         if (loginYN == "Y") {
-            cout << "해당 ID는 이미 로그인 중으로 채팅방에 참여하실 수 없습니다. " << endl;
+            cout << "해당 ID는 이미 채팅방에 참가했기 때문에 채팅방에 참여하실 수 없습니다. " << endl;
+        }
+        else if (loginYN == "F")
+        {
+            cout << "채팅방 최대 인원을 초과했기 때문에 채팅방에 참여하실 수 없습니다." << endl;
         }
         else if (loginYN == "N") {
             // 채팅방 입장

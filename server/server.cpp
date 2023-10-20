@@ -8,6 +8,7 @@
 #include <mysql/jdbc.h>
 #include <sstream>
 
+
 #define MAX_SIZE 1024
 #define MAX_CLIENT 10
 
@@ -157,12 +158,13 @@ void recv_msg(int idx) {
 
     while (1) {
         ZeroMemory(&buf, MAX_SIZE);
-        if (recv(sck_list[idx].sck, buf, MAX_SIZE, 0) > 0) { // 오류가 발생하지 않으면 recv는 수신된 바이트 수를 반환. 0보다 크다는 것은 메시지가 왔다는 것.
-            msg = sck_list[idx].user + " : " + buf;
-            cout << msg << endl;
-            send_msg(msg.c_str());
-        }
-        else { //그렇지 않을 경우 퇴장에 대한 신호로 생각하여 퇴장 메시지 전송
+        
+        int x = 0;
+        x = recv(sck_list[idx].sck, buf, MAX_SIZE, 0);
+        msg = sck_list[idx].user + " : " + buf;
+
+        if (msg == sck_list[idx].user + " : /b" || x < 1)
+        {
             msg = "[공지] " + sck_list[idx].user + " 님이 퇴장했습니다.";
             pIdx = std::find(pctList.begin(), pctList.end(), sck_list[idx].user) - pctList.begin();
             pctList.erase(pctList.begin() + pIdx);
@@ -173,13 +175,34 @@ void recv_msg(int idx) {
             del_client(idx); // 클라이언트 삭제
             return;
         }
+        else
+        {
+            cout << msg << endl;
+            send_msg(msg.c_str());
+        }
+        //if (recv(sck_list[idx].sck, buf, MAX_SIZE, 0) > 0) { // 오류가 발생하지 않으면 recv는 수신된 바이트 수를 반환. 0보다 크다는 것은 메시지가 왔다는 것.
+        //    msg = sck_list[idx].user + " : " + buf;
+        //    cout << msg << endl;
+        //    send_msg(msg.c_str());
+        //}
+        //else { //그렇지 않을 경우 퇴장에 대한 신호로 생각하여 퇴장 메시지 전송
+        //    msg = "[공지] " + sck_list[idx].user + " 님이 퇴장했습니다.";
+        //    pIdx = std::find(pctList.begin(), pctList.end(), sck_list[idx].user) - pctList.begin();
+        //    pctList.erase(pctList.begin() + pIdx);
+        //    insertPtcpt();
+
+        //    cout << msg << endl;
+        //    send_msg(msg.c_str());
+        //    del_client(idx); // 클라이언트 삭제
+        //    return;
+        //}
     }
 }
 
 void del_client(int idx) {
     closesocket(sck_list[idx].sck);
     //sck_list.erase(sck_list.begin() + idx); // 배열에서 클라이언트를 삭제하게 될 경우 index가 달라지면서 런타임 오류 발생....ㅎ
-    client_count--;
+    //client_count--;
 }
 
 

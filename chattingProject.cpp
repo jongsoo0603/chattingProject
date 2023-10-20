@@ -208,7 +208,7 @@ void client(string myId)
                         cout << friendSend << "의 친구신청을 수락했습니다." << endl;
                         // 전역변수 : friendSend = 친구 신청자, friendAccept = 친구 수락자
                         text = "/D " + friendSend + " " + friendAccept + "가 친구신청을 수락했습니다.";
-                        update(myId, 5, getFriend(friendSend, friendAccept));
+                        update(friendSend, 5, getFriend(friendSend, friendAccept));
                         update(myId, 5, getFriend(friendAccept, friendSend));
                         break;
                     }

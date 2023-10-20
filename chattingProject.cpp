@@ -240,7 +240,8 @@ void client(string myId)
                 }
                 else if (text == "/s")
                 {
-                    text = inputSpeaker(myId, client_sock);
+                    inputSpeaker(myId, client_sock);
+                    text = "";
                 }
             }
             if (!text.empty()) {
@@ -265,7 +266,7 @@ int chat_recv() {
         if (recv(client_sock, buf, MAX_SIZE, 0) > 0) 
         {
             msg = buf;
-            // cout << "buf :" << buf << endl;
+            cout << "buf :" << buf << endl;
             std::stringstream ss(msg);  // 문자열을 스트림화
             string stream1, stream2, stream3, stream4, stream5;
             // 스트림을 통해, 문자열을 공백 분리해 변수에 할당.

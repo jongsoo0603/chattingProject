@@ -585,6 +585,7 @@ void getMyfriendInfo(string myId) {
     sql::Connection* con;
     sql::Statement* stmt;
     sql::ResultSet* res;
+    string friendList = "";
 
     try {
         driver = sql::mysql::get_mysql_driver_instance();
@@ -608,16 +609,22 @@ void getMyfriendInfo(string myId) {
     string sql = "SELECT friendList FROM member WHERE memberID ='" + myId + "'";
     res = stmt->executeQuery(sql);
 
+    // 친구 목록 있을때만 친구정보 조회 가능.
     while (res->next()) {
-        cout << "친구 List : " << res->getString("friendList") << endl;
+        friendList = res->getString("friendList");
+        if (friendList != "") {
+            cout << "친구 List : " << friendList << endl;
+            cout << "확인하고 싶은 친구의 id를 입력하세요.";
+            cin >> friendId;
+            myPage(friendId);
+        }
+        else {
+            cout << "친구 리스트가 없어서 조회할 친구 정보가 없습니다. 대화에 참여해 친구를 추가해보세요 ! ^0^" << endl;
+        }
     }
 
     delete res;
     delete con;
-
-    cout << "확인하고 싶은 친구의 id를 입력하세요.";
-    cin >> friendId;
-    myPage(friendId);
 }
 
 

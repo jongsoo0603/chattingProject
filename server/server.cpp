@@ -24,7 +24,7 @@ struct SOCKET_INFO { // 연결된 소켓 정보에 대한 틀 생성
 std::vector<SOCKET_INFO> sck_list; // 연결된 클라이언트 소켓들을 저장할 배열 선언.
 SOCKET_INFO server_sock; // 서버 소켓에 대한 정보를 저장할 변수 선언.
 int client_count = 0; // 현재 접속해 있는 클라이언트를 count 할 변수 선언.
-std::vector<string> pctList;
+std::vector<string> pctList = {};
 
 void server_init(); // socket 초기화 함수. socket(), bind(), listen() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void add_client(); // 소켓에 연결을 시도하는 client를 추가(accept)하는 함수. client accept() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
@@ -105,6 +105,7 @@ void server_init() {
     server_sock.user = "server";
 
     cout << "Server On" << endl;
+    insertPtcpt();
 }
 
 void add_client() {
@@ -142,7 +143,7 @@ void send_msg(const char* msg) {
     for (int i = 0; i < client_count; i++) { // 접속해 있는 모든 client에게 메시지 전송
         send(sck_list[i].sck, msg, MAX_SIZE, 0);
     }
-    
+
     // 메세지 insert DB
     insertMsgInfo(msg);
 }
@@ -220,7 +221,7 @@ void insertPtcpt()
 }
 
 
-void insertMsgInfo(string msg) 
+void insertMsgInfo(string msg)
 {
     std::stringstream ss(msg);  // 문자열을 스트림화
     string stream1 = "", stream2 = "", stream3 = "", stream4 = "";
@@ -236,7 +237,8 @@ void insertMsgInfo(string msg)
     if (stream3 != "/d" && stream3 != "/s" && stream3 != "/f" && stream3 != "/F") {
         if (stream3 == "/D") {
             dmYN = "1";
-        }else{
+        }
+        else {
             stream4 = "";
         }
 

@@ -93,6 +93,8 @@ string inputFriend(string myId)
     {
         cout << "친구신청 할 사람 id 입력 : ";
         cin >> newFrdNum;
+        string temp;
+        getline(cin, temp);
         vector<string> newFriend;
         for (int i = 1; i < pList.size() + 1; i++)
         {
@@ -131,6 +133,7 @@ tuple<string, string, int> outputFriend(string stream1, string stream3, string s
         cout << "ID '" << stream1 << "'이(가) 친구 요청을 보냈습니다. 수락하시겠습니까?(Y, N) :" << endl;
         return { stream1 , stream4, 1 };
     }
+    return { "" , "", 0 };
 }
 
 

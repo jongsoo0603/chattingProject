@@ -18,7 +18,7 @@
 
 
 #define MAX_SIZE 1024
-// #define USE_BATCH
+#define USE_BATCH
 
 using namespace std;
 
@@ -245,8 +245,10 @@ void client(string myId)
                     text = inputSpeaker(myId, client_sock);
                 }
             }
-            const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-            send(client_sock, buffer, strlen(buffer), 0); // 보내기
+            if (!text.empty()) {
+                const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
+                send(client_sock, buffer, strlen(buffer), 0); // 보내기
+            }
         }
         th2.join();
         closesocket(client_sock);
@@ -274,6 +276,12 @@ int chat_recv() {
             ss >> stream3; // 세 번째 단어
             ss >> stream4; // 네 번째 단어
             ss >> stream5; // 다섯 번째 단어
+
+            cout << "1 : " << stream1 << endl;
+            cout << "2 : " << stream2 << endl;
+            cout << "3 : " << stream3 << endl;
+            cout << "4 : " << stream4 << endl;
+            cout << "5 : " << stream5 << endl;
 
             if (stream3 == "/D" || stream3 == "/d") // DM (송신자 : /F 수신자 메세지)
             {

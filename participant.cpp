@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 
+
 using namespace std;
 
 const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
@@ -140,6 +141,7 @@ vector<string> useSpeaker(string myId) {
 
 // 로그인 중복체크 (참가자 중 조회)
 string loginCheck(string myId) {
+    int count = 0;
     string loginYN = "N";
     string selectId = "";
 
@@ -148,6 +150,9 @@ string loginCheck(string myId) {
     sql::Connection* con;
     sql::Statement* pStmt;
     sql::ResultSet* pRes;
+    sql::Statement* fStmt;
+    sql::ResultSet* fRes;
+
 
     try {
         driver = sql::mysql::get_mysql_driver_instance();
@@ -172,6 +177,19 @@ string loginCheck(string myId) {
         if (selectId == myId) {
             loginYN = "Y";
         }
+    }
+
+
+    // 참가자 수가 10명 이하인지 여부 확인  
+    fStmt = con->createStatement();
+    fRes = fStmt->executeQuery("SELECT count(*) AS cnt FROM participant");
+    delete fStmt;
+    while (fRes->next()) {
+        count = fRes->getInt("cnt");
+    }
+    if (count >= 10)
+    {
+        loginYN = "F";
     }
 
     return loginYN;

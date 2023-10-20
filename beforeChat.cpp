@@ -217,15 +217,15 @@ void getBeforeChat(string myId) {
     textcolor(GRAY, BLACK);
     cout << endl;
     textcolor(VIOLET, WHITE);
-    cout << "#                                                                       #";
+    cout << "#                                                                                             #";
     textcolor(GRAY, BLACK);
     cout << endl;
     textcolor(VIOLET, WHITE);
-    cout << "#                    §    채 팅 방    입 장    §                        #";
+    cout << "#                    §    채 팅 방    입 장    §                                             #";
     textcolor(GRAY, BLACK);
     cout << endl;
     textcolor(VIOLET, WHITE);
-    cout << "# ※ 기타 기능 사용하기 ( '/d' : DM, '/f' : 친구 신청, ‘/s’ : 팀채팅 )※  #";
+    cout << "# ※ 기타 기능 사용하기 ( '/d' : DM, '/f' : 친구 신청, ‘/s’ : 팀채팅, '/b' : 채팅방 퇴장)※  #";
     textcolor(GRAY, BLACK);
     cout << endl;
     textcolor(VIOLET, WHITE);

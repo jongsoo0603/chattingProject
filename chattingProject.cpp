@@ -19,7 +19,7 @@
 
 
 #define MAX_SIZE 1024
-// #define USE_BATCH
+#define USE_BATCH
 
 using namespace std;
 
@@ -67,8 +67,8 @@ string inputDM(string myId);                                            // DM �
 void outputDM(string stream1, string stream2, string stream3, string stream4, string msg, string myId);                      // DM 기능 출력부
 string inputFriend(string myId);                                        // 친구추가 기능 입력부
 tuple<string, string, int> outputFriend(string stream1, string stream3, string stream4, string myId);                        // 친구추가 기능 출력부
-void inputSpeaker(string myId, SOCKET client_sock);                     // 확성기 기능 입력부
-void outputSpeaker(string stream1, string stream2, string stream3, string stream4, string stream5, string msg, string myId); // 친구추가 기능 출력부
+void inputSpeaker(string myId, SOCKET client_sock);                     // 팀 채팅 기능 입력부
+void outputSpeaker(string stream1, string stream2, string stream3, string stream4, string stream5, string msg, string myId); // 팀 채팅 기능 출력부
 
 // - chattingProject.cpp
 void textcolor(int foreground, int background);                         // 콘솔 텍스트 색상 변경해주는 함수
@@ -216,7 +216,7 @@ void client(string myId)
                 {
                     text = inputFriend(myId);
                 }
-                else if (text == "/s")
+                else if (text == "/t")
                 {
                     inputSpeaker(myId, client_sock);
                     text = "";
@@ -264,7 +264,7 @@ int chat_recv() {
             {
                 tie(friendSend, friendAccept, current_state) = outputFriend(stream1, stream3, stream4, my_nick);
             }
-            else if (stream3 == "/S" || stream3 == "/s") // 팀채팅 (송신자 : /S 그룹이름 수신자 메세지)
+            else if (stream3 == "/T" || stream3 == "/t") // 팀채팅 (송신자 : /T 그룹이름 수신자 메세지)
             {
                 outputSpeaker(stream1, stream2, stream3, stream4, stream5, msg, my_nick);
             }

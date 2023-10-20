@@ -174,9 +174,9 @@ void getBeforeChat(string myId) {
             textcolor(GRAY, BLACK);
             cout <<" :"<< msg << endl;
         }
-        else if (stream3 == "/S" || stream3 == "/s") // 송신자 : /S 그룹이름 수신자 메세지
+        else if (stream3 == "/T" || stream3 == "/t") // 송신자 : /T 그룹이름 수신자 메세지
         {
-            if (stream3 == "/S" && stream5 == myId)
+            if (stream3 == "/T" && stream5 == myId)
             {
                 int eraseLength = 0;
                 eraseLength = size(stream1) + size(stream2) + size(stream3) + size(stream4) + size(stream5) + 4;
@@ -213,11 +213,11 @@ void getBeforeChat(string myId) {
     cout << endl;
     cout << endl;
     textcolor(VIOLET, WHITE);
-    cout << "#########################################################################";
+    cout << "################################################################################################";
     textcolor(GRAY, BLACK);
     cout << endl;
     textcolor(VIOLET, WHITE);
-    cout << "#                                                                                             #";
+    cout << "#                                                                                                #";
     textcolor(GRAY, BLACK);
     cout << endl;
     textcolor(VIOLET, WHITE);
@@ -225,15 +225,15 @@ void getBeforeChat(string myId) {
     textcolor(GRAY, BLACK);
     cout << endl;
     textcolor(VIOLET, WHITE);
-    cout << "# ※ 기타 기능 사용하기 ( '/d' : DM, '/f' : 친구 신청, ‘/s’ : 팀채팅, '/b' : 채팅방 퇴장)※  #";
+    cout << "#    ※ 기타 기능 사용하기 ( '/d' : DM, '/f' : 친구 신청, ‘/t’ : 팀채팅, '/b' : 채팅방 퇴장)※   #";
     textcolor(GRAY, BLACK);
     cout << endl;
     textcolor(VIOLET, WHITE);
-    cout << "#                                                                       #";
+    cout << "#                                                                                              #";
     textcolor(GRAY, BLACK);
     cout << endl;
     textcolor(VIOLET, WHITE);
-    cout << "#########################################################################";
+    cout << "################################################################################################";
     textcolor(GRAY, BLACK);
     cout << endl << endl;
 

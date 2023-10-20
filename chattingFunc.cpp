@@ -138,7 +138,7 @@ tuple<string, string, int> outputFriend(string stream1, string stream3, string s
 
 
 // 확성기 기능 입력부
-string inputSpeaker(string myId, SOCKET client_sock)
+void inputSpeaker(string myId, SOCKET client_sock)
 {
     vector<string> groupInfo;
     string groupName, message, text;
@@ -151,15 +151,9 @@ string inputSpeaker(string myId, SOCKET client_sock)
 
     for (int i = 1; i < groupInfo.size(); i++)
     {
-        cout << "인스피커 포문 들어옴" << endl;
-        if (groupInfo.at(i) != myId)
-        {
-            text = "/S " + groupName + " " + groupInfo.at(i) + " " + message; // 송신자 : /S 그룹이름 수신자 메세지
-
-            const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
-            send(client_sock, buffer, strlen(buffer), 0); // 보내기
-        }
-        return  "";
+        text = "/S " + groupName + " " + groupInfo.at(i) + " " + message; // 송신자 : /S 그룹이름 수신자 메세지
+        const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
+        send(client_sock, buffer, strlen(buffer), 0); // 보내기
     }
 }
 
@@ -167,7 +161,6 @@ string inputSpeaker(string myId, SOCKET client_sock)
 // 확성기 기능 출력부 (송신자 : /S 그룹이름 수신자 메세지)
 void outputSpeaker(string stream1, string stream2, string stream3, string stream4, string stream5, string msg, string myId)
 {
-    cout << "아웃스피커 들어옴" << endl;
     if (stream3 == "/S" && stream5 == myId)
     {
         int eraseLength = 0;

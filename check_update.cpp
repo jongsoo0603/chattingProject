@@ -168,7 +168,10 @@ void update(string myId, int updateSelect, string updateContents)
         if (updateSelect == 2) updateItem = "password";
         else if (updateSelect == 3) updateItem = "name";
         else if (updateSelect == 4) updateItem = "phoneNumber";
-        else if (updateSelect == 5) updateItem = "friendList";
+        else if (updateSelect == 5)
+        {
+            updateItem = "friendList";
+        }
     
         string query = "UPDATE member SET " + updateItem + " = '" + updateContents + "' WHERE (memberID = '" + myId + "')"; // DB¿¡ »ðÀÔ
         stmt->execute(query);

@@ -66,7 +66,7 @@ string inputDM(string myId);                                            // DM �
 void outputDM(string stream1, string stream2, string stream3, string stream4, string msg, string myId);                      // DM 기능 출력부
 string inputFriend(string myId);                                        // 친구추가 기능 입력부
 tuple<string, string, int> outputFriend(string stream1, string stream3, string stream4, string myId);                        // 친구추가 기능 출력부
-string inputSpeaker(string myId, SOCKET client_sock);                   // 확성기 기능 입력부
+void inputSpeaker(string myId, SOCKET client_sock);                     // 확성기 기능 입력부
 void outputSpeaker(string stream1, string stream2, string stream3, string stream4, string stream5, string msg, string myId); // 친구추가 기능 출력부
 
 // - chattingProject.cpp
@@ -168,31 +168,6 @@ void client(string myId)
 
         // 이전 대화내용 출력
         getBeforeChat(myId);
-        cout << endl;
-        textcolor(VIOLET, WHITE);
-        cout << "#########################################################################";
-        textcolor(GRAY, BLACK);
-        cout << endl;
-        textcolor(VIOLET, WHITE);
-        cout << "#                                                                       #";
-        textcolor(GRAY, BLACK);
-        cout << endl;
-        textcolor(VIOLET, WHITE);
-        cout << "#                    §    채 팅 방    입 장    §                        #";
-        textcolor(GRAY, BLACK);
-        cout << endl;
-        textcolor(VIOLET, WHITE);
-        cout << "# ※ 기타 기능 사용하기 ( '/d' : DM, '/f' : 친구 신청, ‘/s’ : 확성기 )※  #";
-        textcolor(GRAY, BLACK);
-        cout << endl;
-        textcolor(VIOLET, WHITE);
-        cout << "#                                                                       #";
-        textcolor(GRAY, BLACK);
-        cout << endl;
-        textcolor(VIOLET, WHITE);
-        cout << "#########################################################################";
-        textcolor(GRAY, BLACK);
-        cout << endl << endl;
 
         while (1)
         {
@@ -266,7 +241,7 @@ int chat_recv() {
         if (recv(client_sock, buf, MAX_SIZE, 0) > 0) 
         {
             msg = buf;
-            cout << "buf :" << buf << endl;
+            //cout << "buf :" << buf << endl;
             std::stringstream ss(msg);  // 문자열을 스트림화
             string stream1, stream2, stream3, stream4, stream5;
             // 스트림을 통해, 문자열을 공백 분리해 변수에 할당.

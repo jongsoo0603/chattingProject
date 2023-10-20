@@ -211,6 +211,31 @@ void getBeforeChat(string myId) {
         chatTime = "";
     }
     cout << endl;
+    cout << endl;
+    textcolor(VIOLET, WHITE);
+    cout << "#########################################################################";
+    textcolor(GRAY, BLACK);
+    cout << endl;
+    textcolor(VIOLET, WHITE);
+    cout << "#                                                                       #";
+    textcolor(GRAY, BLACK);
+    cout << endl;
+    textcolor(VIOLET, WHITE);
+    cout << "#                    §    채 팅 방    입 장    §                        #";
+    textcolor(GRAY, BLACK);
+    cout << endl;
+    textcolor(VIOLET, WHITE);
+    cout << "# ※ 기타 기능 사용하기 ( '/d' : DM, '/f' : 친구 신청, ‘/s’ : 팀채팅 )※  #";
+    textcolor(GRAY, BLACK);
+    cout << endl;
+    textcolor(VIOLET, WHITE);
+    cout << "#                                                                       #";
+    textcolor(GRAY, BLACK);
+    cout << endl;
+    textcolor(VIOLET, WHITE);
+    cout << "#########################################################################";
+    textcolor(GRAY, BLACK);
+    cout << endl << endl;
 
     delete res;
     delete con;

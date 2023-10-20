@@ -157,6 +157,10 @@ void client(string myId)
         while (1) {
             if (!connect(client_sock, (SOCKADDR*)&client_addr, sizeof(client_addr))) { // 위에 설정한 정보에 해당하는 server로 연결!
                 cout << "Server Connect" << endl;
+
+                // 이전 대화내용 출력
+                getBeforeChat(myId);
+                
                 send(client_sock, my_nick.c_str(), my_nick.length(), 0); // 연결에 성공하면 client 가 입력한 닉네임을 서버로 전송
                 break;
             }
@@ -166,8 +170,6 @@ void client(string myId)
         // 전체 채팅 받아서 출력
         std::thread th2(chat_recv);
 
-        // 이전 대화내용 출력
-        getBeforeChat(myId);
 
         while (1)
         {

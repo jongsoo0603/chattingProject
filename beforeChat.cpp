@@ -33,13 +33,8 @@ enum {
     WHITE
 };
 
-void setColor(unsigned short text);
 
-void textcolor(int foreground, int background)
-{
-    int color = foreground + background * 16;
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
-}
+void textcolor(int foreground, int background);
 
 
 // 이전 DM 조회 (전체일자 조회)
@@ -176,7 +171,7 @@ void getBeforeChat(string myId) {
             cout << "[" << chatTime << "] ";
             textcolor(BLACK, YELLOW);
             cout << stream1 << "의 귓속말";
-            textcolor(WHITE, BLACK);
+            textcolor(GRAY, BLACK);
             cout <<" :"<< msg << endl;
         }
         else if (stream3 == "/S" || stream3 == "/s") // 송신자 : /S 그룹이름 수신자 메세지
@@ -188,23 +183,23 @@ void getBeforeChat(string myId) {
                 msg.erase(0, eraseLength);
                 if (stream4 == "red")
                 {
-                    setColor(RED);
+                    textcolor(RED, BLACK);
                 }
                 else if (stream4 == "green")
                 {
-                    setColor(GREEN);
+                    textcolor(GREEN, BLACK);
                 }
                 else if (stream4 == "blue")
                 {
-                    setColor(BLUE);
+                    textcolor(BLUE, BLACK);
                 }
                 else if (stream4 == "yellow")
                 {
-                    setColor(YELLOW);
+                    textcolor(YELLOW, BLACK);
                 }
                 cout << "[" << chatTime << "] ";
                 cout << stream1 << "의 그룹 메세지 :" << msg << endl;
-                setColor(WHITE);
+                textcolor(GRAY, BLACK);
             }
 
         }

@@ -75,7 +75,7 @@ string getFriend(string sender, string accepter);                       // 신�
 void insertMemberInfo(string id, string pw, string name, string phone); // db에 회원가입 정보 삽입
 string makeAllID();                                                     // db에서 모든 id 받아와서 string으로 붙이고 반환
 void inputMembership();                                                 // 회원가입 조건 확인
-void myPage(string myId);                                               // 내 정보 조회
+void myPage(string myId, string type);                                  // 내 정보 조회
 void updateMemberInfo(string myId);                                     // 내 정보 수정
 void getMyfriendInfo(string myId);                                      // 친구 정보 조회
 void inputLogin(string inputId, string inputPw);                        // 로그인 조건 확인
@@ -491,7 +491,7 @@ void updateMemberInfo(string myId)
             {
                 update(myId, updateSelect, checkCondition(updateSelect));
                 system("cls");
-                myPage(myId);
+                myPage(myId, "myInfo");
             }
             break;
         }
@@ -500,7 +500,7 @@ void updateMemberInfo(string myId)
 
 
 // 내 정보 조회
-void myPage(string myId) {
+void myPage(string myId, string type) {
     string action, pw, chckPW;
     // MySQL Connector/C++ 초기화
     sql::mysql::MySQL_Driver* driver;
@@ -530,48 +530,63 @@ void myPage(string myId) {
     string sql = "SELECT memberID,passWord, name, phoneNumber, groupName, friendList FROM member WHERE memberID ='" + myId + "'";
     res = stmt->executeQuery(sql);
 
-    while (res->next()) {
-        pw = res->getString("passWord");
-        cout << "\n  ◇◆◇  내 정보 조회  ◆◇◆  " << endl;
-        cout << "   ID : " << res->getString("memberID") << endl;
-        cout << "   PW : " << pw << endl;
-        cout << "   NAME : " << res->getString("name") << endl;
-        cout << "   PHONENUMBER : " << res->getString("phoneNumber") << endl;
-        cout << "   GROUP : " << res->getString("groupName") << endl;
-        cout << "   FRIEND : " << res->getString("friendList") << endl;
-        cout << "  ◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆  " << endl;
-    }
 
+    // 정보 조회 ( type : 내정보, 친구정보 분리)
+    if (type == "myInfo") {
+        while (res->next()) {
+            pw = res->getString("passWord");
+            cout << "\n  ◇◆◇  내 정보 조회  ◆◇◆  " << endl;
+            cout << "   ID : " << res->getString("memberID") << endl;
+            cout << "   PW : " << pw << endl;
+            cout << "   NAME : " << res->getString("name") << endl;
+            cout << "   PHONENUMBER : " << res->getString("phoneNumber") << endl;
+            cout << "   GROUP : " << res->getString("groupName") << endl;
+            cout << "   FRIEND : " << res->getString("friendList") << endl;
+            cout << "  ◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆  " << endl;
+        }
 
-    while (true)
-    {
-        cout << "\n  정보 수정 : Y, 뒤로 가기 : N" << endl;
-        cin >> action;
-        if (action == "Y")
+        while (true)
         {
-            system("cls");
-            cout << "비밀번호를 입력하세요 : ";
-            cin >> chckPW;
-            if (chckPW == pw)
+            cout << "\n  정보 수정 : Y, 뒤로 가기 : N" << endl;
+            cin >> action;
+            if (action == "Y")
             {
-                updateMemberInfo(myId);
+                system("cls");
+                cout << "비밀번호를 입력하세요 : ";
+                cin >> chckPW;
+                if (chckPW == pw)
+                {
+                    updateMemberInfo(myId);
+                    break;
+                }
+                else
+                {
+                    cout << "비밀번호가 일치하지 않습니다." << endl;
+                }
+            }
+            else if (action == "N")
+            {
+                successLogin(myId);
                 break;
             }
             else
             {
-                cout << "비밀번호가 일치하지 않습니다." << endl;
+                cout << "잘못 입력하셨습니다." << endl;
             }
         }
-        else if (action == "N")
-        {
-            successLogin(myId);
-            break;
-        }
-        else
-        {
-            cout << "잘못 입력하셨습니다." << endl;
+    }
+    else if (type == "friendInfo") {
+        while (res->next()) {
+            cout << "\n  ◇◆◇  친구 정보 조회  ◆◇◆  " << endl;
+            cout << "   ID : " << res->getString("memberID") << endl;
+            cout << "   NAME : " << res->getString("name") << endl;
+            cout << "   PHONENUMBER : " << res->getString("phoneNumber") << endl;
+            cout << "   GROUP : " << res->getString("groupName") << endl;
+            cout << "   FRIEND : " << res->getString("friendList") << endl;
+            cout << "  ◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆  " << endl;
         }
     }
+
     delete res;
     delete con;
 }
@@ -616,7 +631,7 @@ void getMyfriendInfo(string myId) {
             cout << "친구 List : " << friendList << endl;
             cout << "확인하고 싶은 친구의 id를 입력하세요.";
             cin >> friendId;
-            myPage(friendId);
+            myPage(friendId, "friendInfo");
         }
         else {
             cout << "친구 리스트가 없어서 조회할 친구 정보가 없습니다. 대화에 참여해 친구를 추가해보세요 ! ^0^" << endl;
@@ -743,9 +758,9 @@ void successLogin(string myId) {
     }
     else if (select == 3)
     {
-        // 회원정보 조회
+        // 내 정보 조회
         system("cls");
-        myPage(myId);
+        myPage(myId, "myInfo");
     }
     else if (select == 4)
     {

@@ -119,7 +119,9 @@ int main(int argc, char* argv[])
 #ifdef USE_BATCH
         select = atoi(argv[1]);
 #else
-        cin >> select;
+        cin >> select; 
+        string temp;
+        getline(cin, temp);
         system("cls");
 #endif
         if (select == 1) 
@@ -191,6 +193,7 @@ void client(string myId)
         {
             string text;
             std::getline(cin, text);
+            cout << "text " << text;
             // 친구신청 진행중인 상태일 때
             if (current_state == 1) 
             {
@@ -236,6 +239,12 @@ void client(string myId)
                     inputSpeaker(myId, client_sock);
                     text = "";
                 }
+                else if (text == "/q")
+                {
+                    const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
+                    send(client_sock, buffer, strlen(buffer), 0); // 보내기
+                    break;
+                }
             }
             if (!text.empty()) {
                 const char* buffer = text.c_str(); // string형을 char* 타입으로 변환
@@ -246,6 +255,8 @@ void client(string myId)
         closesocket(client_sock);
     }
     WSACleanup();
+
+    successLogin(my_nick);
 }
 
 
@@ -296,10 +307,11 @@ int chat_recv() {
         {
             cout << "Server Off" << endl;
             break;
-            //return -1;
+            // return -1;
         }
     }
-    successLogin(my_nick);
+    //successLogin(my_nick);
+    cout << "chat_recv end" << endl;
 }
 
 
@@ -744,7 +756,7 @@ void inputLogin(string inputId, string inputPw) {
 
 // 로그인 성공 후 기능 선택페이지
 void successLogin(string myId) {
-    string loginYN = "", select, action, temp;
+    string loginYN = "", select, action;
     system("cls");
 
     cout << "\n▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
@@ -755,7 +767,7 @@ void successLogin(string myId) {
     cout << "  5. 이전 DM 보기 " << endl;
     cout << "△△△△△△△△△△△△△△" << endl;
 
-    getline(cin, temp);
+    getline(cin, select);
     getline(cin, select);
 
     while (true)
@@ -810,7 +822,7 @@ void successLogin(string myId) {
         }
         else
         {
-            cout << "잘못 입력하셨습니다. 다시 입력해주세요." << endl;
+            cout << "띠용잘못 입력하셨습니다. 다시 입력해주세요." << endl;
             getline(cin, select);
         }
     }
@@ -818,6 +830,8 @@ void successLogin(string myId) {
     while (true) {
         cout << "\n이전으로 가기 (Y)" << endl;
         cin >> action;
+        string temp;
+        getline(cin, temp);
         if (action == "Y") {
             successLogin(myId);
             break;

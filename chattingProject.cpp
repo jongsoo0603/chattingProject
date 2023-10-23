@@ -702,9 +702,7 @@ void inputLogin(string inputId, string inputPw) {
 
 // 로그인 성공 후 기능 선택페이지
 void successLogin(string myId) {
-    int select;
-    string action;
-    string loginYN = "";
+    string loginYN = "", select, action;
     system("cls");
 
     cout << "\n▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
@@ -719,7 +717,7 @@ void successLogin(string myId) {
 
     while (true)
     {
-        if (select == 1)
+        if (select == "1")
         {
             // 로그인 중복체크.
             loginYN = loginCheck(myId);
@@ -738,21 +736,21 @@ void successLogin(string myId) {
             }
             break;
         }
-        else if (select == 2)
+        else if (select == "2")
         {
             // 채팅방 참가자 조회
             system("cls");
             getPtcpt(myId);
             break;
         }
-        else if (select == 3)
+        else if (select == "3")
         {
             // 내 정보 조회
             system("cls");
             myPage(myId, "myInfo");
             break;
         }
-        else if (select == 4)
+        else if (select == "4")
         {
             // 친구정보 조회
             system("cls");
@@ -760,7 +758,7 @@ void successLogin(string myId) {
             break;
 
         }
-        else if (select == 5)
+        else if (select == "5")
         {
             // 이전 DM 조회
             system("cls");
@@ -770,7 +768,7 @@ void successLogin(string myId) {
         else
         {
             cout << "잘못 입력하셨습니다. 다시 입력해주세요." << endl;
-            cin >> select;
+            getline(cin, select);
             cin >> select;
         }
     }

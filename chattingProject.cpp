@@ -541,14 +541,17 @@ void myPage(string myId, string type) {
     if (type == "myInfo") {
         while (res->next()) {
             pw = res->getString("passWord");
-            cout << "\n  ◇◆◇  내 정보 조회  ◆◇◆  " << endl;
-            cout << "   ID : " << res->getString("memberID") << endl;
-            cout << "   PW : " << pw << endl;
-            cout << "   NAME : " << res->getString("name") << endl;
-            cout << "   PHONENUMBER : " << res->getString("phoneNumber") << endl;
-            cout << "   GROUP : " << res->getString("groupName") << endl;
-            cout << "   FRIEND : " << res->getString("friendList") << endl;
-            cout << "  ◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆  " << endl;
+
+            textcolor(VIOLET, BLACK);
+            cout << endl;
+            cout << "               ▶▶▶   내정보 조회   ◀◀◀                " << endl << endl;
+            cout << "           ▷ ID : " << res->getString("memberID") << endl << endl;
+            cout << "           ▷ PW : " << pw << endl << endl;
+            cout << "           ▷ NAME : " << res->getString("name") << endl << endl;
+            cout << "           ▷ PHONENUMBER : " << res->getString("phoneNumber") << endl << endl;
+            cout << "           ▷ GROUP : " << res->getString("groupName") << endl << endl;
+            cout << "           ▷ FRIEND : " << res->getString("friendList") << endl << endl;
+            textcolor(GRAY, BLACK);
         }
 
         while (true)
@@ -680,12 +683,14 @@ void inputLogin(string inputId, string inputPw) {
 
     textcolor(GREEN, BLACK);
     cout << endl << endl;
-    cout << "                   ●          ●●        ●●●     ●●●     ●    ●                         " << endl;
-    cout << "                   ●        ●    ●     ●         ●      ● ●  ●                         " << endl;
-    cout << "                   ●        ●    ●     ●  ●●     ●      ●  ● ●                         " << endl;
-    cout << "                   ●●●        ●●        ●● ●    ●●●     ●    ●                         " << endl << endl << endl;
-    cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                            " << endl << endl;
-    cout << endl << endl << endl << endl;
+
+    cout << "                   ●          ●●        ●●●     ●●     ●    ●                         " << endl;
+    cout << "                   ●        ●    ●     ●           ●      ●●  ●                         " << endl;
+    cout << "                   ●        ●    ●     ●  ●●     ●      ●  ●●                         " << endl;
+    cout << "                   ●●●      ●●        ●● ●    ●●     ●    ●                         " << endl << endl << endl;
+    cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                         " << endl;
+    cout << endl << endl << endl;
+
     textcolor(GRAY, BLACK);
 
     // id,비번 입력받기.
@@ -720,12 +725,15 @@ void inputLogin(string inputId, string inputPw) {
     }
     else {
         //로그인 실패. - 다시 로그인 받기.
+        textcolor(RED, BLACK);
         if (!idYN) {
-            cout << "없는 ID입니다. ID를 확인해주세요." << endl;
+            cout << "\n                   없는 ID입니다. ID를 확인해주세요." << endl;
         }
         else if (!pwYN) {
-            cout << "비밀번호가 일치하지 않습니다. 비밀번호를 확인해주세요." << endl;
+            cout << "\n                   비밀번호가 일치하지 않습니다. 비밀번호를 확인해주세요." << endl;
         }
+        textcolor(GRAY, BLACK);
+        cout << endl << endl << endl;
         inputId.clear();
         inputPw.clear();
         inputLogin(inputId, inputPw);

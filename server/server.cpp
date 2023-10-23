@@ -10,7 +10,7 @@
 
 
 #define MAX_SIZE 1024
-#define MAX_CLIENT 10
+#define MAX_CLIENT 3
 
 using std::cout;
 using std::cin;
@@ -20,6 +20,7 @@ using std::string;
 struct SOCKET_INFO { // 연결된 소켓 정보에 대한 틀 생성
     SOCKET sck;
     string user;
+    int ti;
 };
 
 std::vector<SOCKET_INFO> sck_list; // 연결된 클라이언트 소켓들을 저장할 배열 선언.
@@ -28,16 +29,38 @@ int client_count = 0; // 현재 접속해 있는 클라이언트를 count 할 변수 선언.
 std::vector<string> pctList = {};
 
 void server_init(); // socket 초기화 함수. socket(), bind(), listen() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
-void add_client(); // 소켓에 연결을 시도하는 client를 추가(accept)하는 함수. client accept() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
+void add_client(int ti); // 소켓에 연결을 시도하는 client를 추가(accept)하는 함수. client accept() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void send_msg(const char* msg); // send() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
-void recv_msg(int idx); // recv() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
+void recv_msg(string user); // recv() 함수 실행됨. 자세한 내용은 함수 구현부에서 확인.
 void del_client(int idx); // 소켓에 연결되어 있는 client를 제거하는 함수. closesocket() 실행됨. 자세한 내용은 함수 구현부에서 확인.
+SOCKET getSocket(string user);
+int removeSocket(string user);
+int recreate = -1;
+std::thread th1[MAX_CLIENT];
 void insertPtcpt();
 void insertMsgInfo(string msg);
 
 const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
 const string password = "1122"; // 데이터베이스 접속 비밀번호
+
+
+void recreateThread() {
+    while (1) {
+        cout << "recreate " << recreate << endl;
+        if (recreate > -1) {
+            cout << "th1.join() " << recreate << endl;
+            th1[recreate].join();
+            cout << "join " << recreate << endl;
+            th1[recreate] = std::thread(add_client, recreate);
+            recreate = -1;
+        }
+        if (recreate == -2) {
+            return;
+        }
+        Sleep(1000);
+    }
+}
 
 
 int main() {
@@ -50,13 +73,12 @@ int main() {
 
     if (!code) {
         server_init();
-
-        std::thread th1[MAX_CLIENT];
         for (int i = 0; i < MAX_CLIENT; i++) {
             // 인원 수 만큼 thread 생성해서 각각의 클라이언트가 동시에 소통할 수 있도록 함.
-            th1[i] = std::thread(add_client);
+            th1[i] = std::thread(add_client, i);
         }
         //std::thread th1(add_client); // 이렇게 하면 하나의 client만 받아짐...
+        std::thread th2(recreateThread);
 
         while (1) { // 무한 반복문을 사용하여 서버가 계속해서 채팅 보낼 수 있는 상태를 만들어 줌. 반복문을 사용하지 않으면 한 번만 보낼 수 있음.
             string text, msg = "";
@@ -74,6 +96,7 @@ int main() {
             //thread 작업이 끝날 때까지 main 함수가 끝나지 않도록 해줌.
         }
         //th1.join();
+        th2.join();
 
         closesocket(server_sock.sck);
     }
@@ -85,6 +108,7 @@ int main() {
 
     return 0;
 }
+
 
 void server_init() {
     server_sock.sck = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -101,15 +125,17 @@ void server_init() {
     //Any인 경우는 호스트를 127.0.0.1로 잡아도 되고 localhost로 잡아도 되고 양쪽 다 허용하게 할 수 있따. 그것이 INADDR_ANY이다.
     //ip 주소를 저장할 땐 server_addr.sin_addr.s_addr -- 정해진 모양?
 
-    bind(server_sock.sck, (sockaddr*)&server_addr, sizeof(server_addr)); // 설정된 소켓 정보를 소켓에 바인딩한다.
-    listen(server_sock.sck, SOMAXCONN); // 소켓을 대기 상태로 기다린다.
+    int b = bind(server_sock.sck, (sockaddr*)&server_addr, sizeof(server_addr)); // 설정된 소켓 정보를 소켓에 바인딩한다.
+    int l = listen(server_sock.sck, SOMAXCONN); // 소켓을 대기 상태로 기다린다.
+    cout << "b " << b << ", l " << l << endl;
     server_sock.user = "server";
 
     cout << "Server On" << endl;
     insertPtcpt();
 }
 
-void add_client() {
+
+void add_client(int ti) {
     SOCKADDR_IN addr = {};
     int addrsize = sizeof(addr);
     char buf[MAX_SIZE] = { };
@@ -117,11 +143,14 @@ void add_client() {
     ZeroMemory(&addr, addrsize); // addr의 메모리 영역을 0으로 초기화
 
     SOCKET_INFO new_client = {};
+    cout << "before accept" << endl;
 
     new_client.sck = accept(server_sock.sck, (sockaddr*)&addr, &addrsize);
+    cout << "after accept" << endl;
     recv(new_client.sck, buf, MAX_SIZE, 0);
     // Winsock2의 recv 함수. client가 보낸 닉네임을 받음.
     new_client.user = string(buf);
+    new_client.ti = ti;
 
     string msg = "[공지] " + new_client.user + " 님이 입장했습니다.";
     pctList.push_back(new_client.user);
@@ -130,18 +159,20 @@ void add_client() {
     cout << msg << endl;
     sck_list.push_back(new_client); // client 정보를 답는 sck_list 배열에 새로운 client 추가
 
-    std::thread th(recv_msg, client_count);
+    std::thread th(recv_msg, new_client.user);
     // 다른 사람들로부터 오는 메시지를 계속해서 받을 수 있는 상태로 만들어 두기.
 
     client_count++; // client 수 증가.
-    // cout << "[공지] 현재 접속자 수 : " << client_count << "명" << endl;
+    cout << "[공지] 현재 접속자 수 : " << client_count << "명" << endl;
     send_msg(msg.c_str()); // c_str : string 타입을 const chqr* 타입으로 바꿔줌.
 
     th.join();
+    cout << "th.join()" << endl;
 }
 
+
 void send_msg(const char* msg) {
-    for (int i = 0; i < client_count; i++) { // 접속해 있는 모든 client에게 메시지 전송
+    for (int i = 0; i < sck_list.size(); i++) { // 접속해 있는 모든 client에게 메시지 전송
         send(sck_list[i].sck, msg, MAX_SIZE, 0);
     }
 
@@ -149,30 +180,34 @@ void send_msg(const char* msg) {
     insertMsgInfo(msg);
 }
 
-void recv_msg(int idx) {
+
+void recv_msg(string user) {
     char buf[MAX_SIZE] = { };
     string msg = "";
+    SOCKET sck = getSocket(user);
     int pIdx = 0;
 
     //cout << sck_list[idx].user << endl;
 
     while (1) {
         ZeroMemory(&buf, MAX_SIZE);
-        
+        cout << "recv" << endl;
         int x = 0;
-        x = recv(sck_list[idx].sck, buf, MAX_SIZE, 0);
-        msg = sck_list[idx].user + " : " + buf;
+        x = recv(sck, buf, MAX_SIZE, 0);
+        msg = user + " : " + buf;
 
-        if (msg == sck_list[idx].user + " : /q" || x < 1)
+        if (msg == user + " : /q" || x < 1)
         {
-            msg = "[공지] " + sck_list[idx].user + " 님이 퇴장했습니다.";
-            pIdx = std::find(pctList.begin(), pctList.end(), sck_list[idx].user) - pctList.begin();
-            pctList.erase(pctList.begin() + pIdx);
-            insertPtcpt();
-
+            msg = "[공지] " + user + " 님이 퇴장했습니다.";
             cout << msg << endl;
             send_msg(msg.c_str());
-            del_client(idx); // 클라이언트 삭제
+            //del_client(idx); // 클라이언트 삭제
+            int remove = removeSocket(user);
+            cout << "remove " << remove << endl;
+            if (remove > -1) {
+                recreate = remove;
+                cout << "set recreate " << recreate << endl;
+            }
             return;
         }
         else
@@ -180,29 +215,38 @@ void recv_msg(int idx) {
             cout << msg << endl;
             send_msg(msg.c_str());
         }
-        //if (recv(sck_list[idx].sck, buf, MAX_SIZE, 0) > 0) { // 오류가 발생하지 않으면 recv는 수신된 바이트 수를 반환. 0보다 크다는 것은 메시지가 왔다는 것.
-        //    msg = sck_list[idx].user + " : " + buf;
-        //    cout << msg << endl;
-        //    send_msg(msg.c_str());
-        //}
-        //else { //그렇지 않을 경우 퇴장에 대한 신호로 생각하여 퇴장 메시지 전송
-        //    msg = "[공지] " + sck_list[idx].user + " 님이 퇴장했습니다.";
-        //    pIdx = std::find(pctList.begin(), pctList.end(), sck_list[idx].user) - pctList.begin();
-        //    pctList.erase(pctList.begin() + pIdx);
-        //    insertPtcpt();
-
-        //    cout << msg << endl;
-        //    send_msg(msg.c_str());
-        //    del_client(idx); // 클라이언트 삭제
-        //    return;
-        //}
     }
+    cout << "recv_msg out" << endl;
 }
+
 
 void del_client(int idx) {
     closesocket(sck_list[idx].sck);
-    //sck_list.erase(sck_list.begin() + idx); // 배열에서 클라이언트를 삭제하게 될 경우 index가 달라지면서 런타임 오류 발생....ㅎ
-    // client_count--;
+    sck_list.erase(sck_list.begin() + idx); // 배열에서 클라이언트를 삭제하게 될 경우 index가 달라지면서 런타임 오류 발생....ㅎ
+    client_count--;
+}
+
+
+SOCKET getSocket(string user) {
+    for (int i = 0; i < sck_list.size(); i++) { // 접속해 있는 모든 client에게 메시지 전송
+        if (sck_list[i].user == user) {
+            return sck_list[i].sck;
+        }
+    }
+    return 0;
+}
+
+
+int removeSocket(string user) {
+    int ti;
+    for (int i = 0; i < sck_list.size(); i++) { // 접속해 있는 모든 client에게 메시지 전송
+        if (sck_list[i].user == user) {
+            ti = sck_list[i].ti;
+            del_client(i);
+            return ti;
+        }
+    }
+    return -1;
 }
 
 

@@ -19,6 +19,7 @@
 
 
 #define MAX_SIZE 1024
+
 //#define USE_BATCH
 
 using namespace std;
@@ -294,9 +295,11 @@ int chat_recv() {
         else
         {
             cout << "Server Off" << endl;
-            return -1;
+            break;
+            //return -1;
         }
     }
+    successLogin(my_nick);
 }
 
 
@@ -748,51 +751,65 @@ void successLogin(string myId) {
 
     cin >> select;
 
-    if (select == 1)
+    while (true)
     {
-        // 로그인 중복체크.
-        loginYN = loginCheck(myId);
-
-        if (loginYN == "Y") {
-            cout << "해당 ID는 이미 채팅방에 참가했기 때문에 채팅방에 참여하실 수 없습니다. " << endl;
-        }
-        else if (loginYN == "F")
+        if (select == 1)
         {
-            cout << "채팅방 최대 인원을 초과했기 때문에 채팅방에 참여하실 수 없습니다." << endl;
+            // 로그인 중복체크.
+            loginYN = loginCheck(myId);
+
+            if (loginYN == "Y") {
+                cout << "해당 ID는 이미 채팅방에 참가했기 때문에 채팅방에 참여하실 수 없습니다. " << endl;
+            }
+            else if (loginYN == "F")
+            {
+                cout << "채팅방 최대 인원을 초과했기 때문에 채팅방에 참여하실 수 없습니다." << endl;
+            }
+            else if (loginYN == "N") {
+                // 채팅방 입장
+                system("cls");
+                client(myId);
+            }
+            break;
         }
-        else if (loginYN == "N") {
-            // 채팅방 입장
+        else if (select == 2)
+        {
+            // 채팅방 참가자 조회
             system("cls");
-            client(myId);
+            getPtcpt(myId);
+            break;
+        }
+        else if (select == 3)
+        {
+            // 내 정보 조회
+            system("cls");
+            myPage(myId, "myInfo");
+            break;
+        }
+        else if (select == 4)
+        {
+            // 친구정보 조회
+            system("cls");
+            getMyfriendInfo(myId);
+            break;
+
+        }
+        else if (select == 5)
+        {
+            // 이전 DM 조회
+            system("cls");
+            getMyDM(myId);
+            break;
+        }
+        else
+        {
+            cout << "잘못 입력하셨습니다. 다시 입력해주세요." << endl;
+            cin >> select;
+            cin >> select;
         }
     }
-    else if (select == 2)
-    {
-        // 채팅방 참가자 조회
-        system("cls");
-        getPtcpt(myId);
-    }
-    else if (select == 3)
-    {
-        // 내 정보 조회
-        system("cls");
-        myPage(myId, "myInfo");
-    }
-    else if (select == 4)
-    {
-        // 친구정보 조회
-        system("cls");
-        getMyfriendInfo(myId);
 
-    }
-    else if (select == 5)
-    {
-        // 이전 DM 조회
-        system("cls");
-        getMyDM(myId);
-    }
-
-    while (1) {
+    while (true) {
         cout << "\n이전으로 가기 (Y)" << endl;
         cin >> action;
         if (action == "Y") {

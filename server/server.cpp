@@ -47,11 +47,11 @@ const string password = "1122"; // 데이터베이스 접속 비밀번호
 
 void recreateThread() {
     while (1) {
-        cout << "recreate " << recreate << endl;
+        //cout << "recreate " << recreate << endl;
         if (recreate > -1) {
-            cout << "th1.join() " << recreate << endl;
+            //cout << "th1.join() " << recreate << endl;
             th1[recreate].join();
-            cout << "join " << recreate << endl;
+            //cout << "join " << recreate << endl;
             th1[recreate] = std::thread(add_client, recreate);
             recreate = -1;
         }
@@ -127,7 +127,7 @@ void server_init() {
 
     int b = bind(server_sock.sck, (sockaddr*)&server_addr, sizeof(server_addr)); // 설정된 소켓 정보를 소켓에 바인딩한다.
     int l = listen(server_sock.sck, SOMAXCONN); // 소켓을 대기 상태로 기다린다.
-    cout << "b " << b << ", l " << l << endl;
+    //cout << "b " << b << ", l " << l << endl;
     server_sock.user = "server";
 
     cout << "Server On" << endl;
@@ -143,10 +143,10 @@ void add_client(int ti) {
     ZeroMemory(&addr, addrsize); // addr의 메모리 영역을 0으로 초기화
 
     SOCKET_INFO new_client = {};
-    cout << "before accept" << endl;
+    //cout << "before accept" << endl;
 
     new_client.sck = accept(server_sock.sck, (sockaddr*)&addr, &addrsize);
-    cout << "after accept" << endl;
+    //cout << "after accept" << endl;
     recv(new_client.sck, buf, MAX_SIZE, 0);
     // Winsock2의 recv 함수. client가 보낸 닉네임을 받음.
     new_client.user = string(buf);
@@ -167,7 +167,7 @@ void add_client(int ti) {
     send_msg(msg.c_str()); // c_str : string 타입을 const chqr* 타입으로 바꿔줌.
 
     th.join();
-    cout << "th.join()" << endl;
+    //cout << "th.join()" << endl;
 }
 
 
@@ -191,7 +191,7 @@ void recv_msg(string user) {
 
     while (1) {
         ZeroMemory(&buf, MAX_SIZE);
-        cout << "recv" << endl;
+        //cout << "recv" << endl;
         int x = 0;
         x = recv(sck, buf, MAX_SIZE, 0);
         msg = user + " : " + buf;
@@ -199,14 +199,20 @@ void recv_msg(string user) {
         if (msg == user + " : /q" || x < 1)
         {
             msg = "[공지] " + user + " 님이 퇴장했습니다.";
+
+            // 참가자 DB 변경.
+            pIdx = std::find(pctList.begin(), pctList.end(), user) - pctList.begin();
+            pctList.erase(pctList.begin() + pIdx);
+            insertPtcpt();
+
             cout << msg << endl;
             send_msg(msg.c_str());
             //del_client(idx); // 클라이언트 삭제
             int remove = removeSocket(user);
-            cout << "remove " << remove << endl;
+            //cout << "remove " << remove << endl;
             if (remove > -1) {
                 recreate = remove;
-                cout << "set recreate " << recreate << endl;
+                //cout << "set recreate " << recreate << endl;
             }
             return;
         }
@@ -216,7 +222,7 @@ void recv_msg(string user) {
             send_msg(msg.c_str());
         }
     }
-    cout << "recv_msg out" << endl;
+    //cout << "recv_msg out" << endl;
 }
 
 

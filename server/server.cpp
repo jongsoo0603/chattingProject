@@ -134,7 +134,7 @@ void add_client() {
     // 다른 사람들로부터 오는 메시지를 계속해서 받을 수 있는 상태로 만들어 두기.
 
     client_count++; // client 수 증가.
-    cout << "[공지] 현재 접속자 수 : " << client_count << "명" << endl;
+    // cout << "[공지] 현재 접속자 수 : " << client_count << "명" << endl;
     send_msg(msg.c_str()); // c_str : string 타입을 const chqr* 타입으로 바꿔줌.
 
     th.join();
@@ -163,7 +163,7 @@ void recv_msg(int idx) {
         x = recv(sck_list[idx].sck, buf, MAX_SIZE, 0);
         msg = sck_list[idx].user + " : " + buf;
 
-        if (msg == sck_list[idx].user + " : /b" || x < 1)
+        if (msg == sck_list[idx].user + " : /q" || x < 1)
         {
             msg = "[공지] " + sck_list[idx].user + " 님이 퇴장했습니다.";
             pIdx = std::find(pctList.begin(), pctList.end(), sck_list[idx].user) - pctList.begin();
@@ -202,7 +202,7 @@ void recv_msg(int idx) {
 void del_client(int idx) {
     closesocket(sck_list[idx].sck);
     //sck_list.erase(sck_list.begin() + idx); // 배열에서 클라이언트를 삭제하게 될 경우 index가 달라지면서 런타임 오류 발생....ㅎ
-    //client_count--;
+    // client_count--;
 }
 
 

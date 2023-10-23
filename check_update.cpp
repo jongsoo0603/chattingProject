@@ -23,14 +23,15 @@ string makeAllID();
 string checkCondition(int conditionSelect) 
 {
     string id, name, phone, pw;
-    bool isalphaCheck = true, pwCheck = true, phoneCheck = true;
+    bool isalphaCheck = true, pwCheck = true, phoneCheck = true, nameCheck = true;
     switch (conditionSelect)
     {
     case 1:
         while (true)
         {
-            cout << "\n사용할 ID를 입력해 주세요(영어+숫자, 20자 이내) : ";
+            cout << "\n사용할 ID를 입력해 주세요(영어와 숫자 만, 20자 이내) : ";
             cin >> id;
+            cin.ignore();
             for (int i = 0; i < size(id); i++) // 영어, 숫자 만 있는지 체크
             {
                 if (isalnum(id[i]) == 0)
@@ -63,6 +64,7 @@ string checkCondition(int conditionSelect)
         {
             cout << "\n사용할 PW를 입력해 주세요(숫자 6자리 만) : ";
             cin >> pw;
+            cin.ignore();
             if (size(pw) != 6)
             {
                 pwCheck = false;
@@ -94,15 +96,32 @@ string checkCondition(int conditionSelect)
         {
             cout << "\n이름을 입력해 주세요(10자 이하) : ";
             cin >> name;
+            cin.ignore();
             if (size(name) < 1 || size(name) > 10)
             {
                 cout << "이름은 10자 이하여야 합니다." << endl;
-                
+                nameCheck = false;
             }
             else
             {
-                return name;
-                break;
+                for (int i = 0; i < size(name); i++) // 문자 만 있는지 체크
+                {
+                    if (isalpha(name[i]) == 0)
+                    {
+                        nameCheck = false;
+                    }
+                }
+                if(nameCheck == false)
+                {
+
+                    cout << "이름은 문자 만 사용할 수 있습니다." << endl;
+                    nameCheck = true;
+                }
+                else
+                {
+                    return name;
+                    break;
+                }
             }
         }
         break;
@@ -111,7 +130,7 @@ string checkCondition(int conditionSelect)
         {
             cout << "\n전화번호를 입력해 주세요(슬래쉬제외 11자리) : ";
             cin >> phone;
-
+            cin.ignore();
             if (size(phone) != 11) // 11자리 체크
             {
                 phoneCheck = false;

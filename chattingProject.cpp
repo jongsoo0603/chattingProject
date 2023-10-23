@@ -28,14 +28,22 @@ using namespace std;
 
 //색상 선언
 enum {
-    BLACK = 0,
-    GRAY = 7,
-    BLUE = 9,
+    BLACK,
+    DARK_BLUE,
+    DARK_GREEN,
+    DARK_SKYBLUE,
+    DARK_RED,
+    DARK_VOILET,
+    DAKR_YELLOW,
+    GRAY,
+    DARK_GRAY,
+    BLUE,
     GREEN,
-    RED = 12,
+    SKYBLUE,
+    RED,
     VIOLET,
     YELLOW,
-    WHITE
+    WHITE,
 };
 
 
@@ -50,12 +58,12 @@ int updateSelect;
 
 
 
-// participant.cpp
+// - participant.cpp
 vector<vector<string>> getPtcpt(string myId);                           // 채팅 참가자 목록 출력 (전체)
 vector<string> useSpeaker(string myId);                                 // 확성기 사용 (같은 그룹내 ID 조회)
 string loginCheck(string myId);                                         // 로그인 중복체크 (참가자 중 조회)
 
-// check_update.cpp
+// - check_update.cpp
 void update(string myId, int updateSelect, string updateContents);      // DB 업데이트
 string checkCondition(int conditionSelect);                             // 각 항목별로 조건 판별 후 string으로 반환
 
@@ -63,7 +71,7 @@ string checkCondition(int conditionSelect);                             // 각 �
 void getMyDM(string myId);                                              // 이전 DM 조회 (전체일자 조회)
 void getBeforeChat(string myId);                                        // 이전 전체 대화 내용 조회 (당일건만 조회)
 
-// -chattingFunc.cpp
+// - chattingFunc.cpp
 string inputDM(string myId);                                            // DM 기능 입력부
 void outputDM(string stream1, string stream2, string stream3, string stream4, string msg, string myId);                      // DM 기능 출력부
 string inputFriend(string myId);                                        // 친구추가 기능 입력부
@@ -110,7 +118,7 @@ int main(int argc, char* argv[])
         cout << endl << endl << endl << endl << endl << endl;
         textcolor(GREEN, BLACK);
         cout << "                                   ▶    1. 로그인                                              " << endl;
-        textcolor(WHITE, BLACK);
+        textcolor(SKYBLUE, BLACK);
         cout << "                                   ▶    2. 회원가입                                            " << endl;
         textcolor(YELLOW, BLACK);
         cout << endl << endl;
@@ -120,8 +128,7 @@ int main(int argc, char* argv[])
         select = atoi(argv[1]);
 #else
         cin >> select; 
-        string temp;
-        getline(cin, temp);
+        cin.ignore();
         system("cls");
 #endif
         if (select == 1) 
@@ -193,7 +200,6 @@ void client(string myId)
         {
             string text;
             std::getline(cin, text);
-            cout << "text " << text;
             // 친구신청 진행중인 상태일 때
             if (current_state == 1) 
             {
@@ -299,7 +305,7 @@ int chat_recv() {
                 
                 if (stream1 != my_nick)
                 {
-                    cout << msg << endl;
+                    cout << "                                                            " << msg << endl;
                 }
             }
         }
@@ -461,7 +467,7 @@ string makeAllID()
 // 회원가입 조건 확인
 void inputMembership()
 {
-    textcolor(WHITE, BLACK);
+    textcolor(SKYBLUE, BLACK);
     cout << endl << endl;
     cout << "     ●●●●       ●●●       ●●●     ●    ●                         " << endl;
     cout << "       ●       ●   ●       ●      ● ●  ●                         " << endl;
@@ -493,6 +499,7 @@ void updateMemberInfo(string myId)
         cout << "  4. 전화번호 수정 " << endl;
         cout << "△△△△△△△△△△△△△△" << endl;
         cin >> updateSelect;
+        cin.ignore();
 
         if (updateSelect < 1 && updateSelect > 4)
         {
@@ -519,7 +526,7 @@ void updateMemberInfo(string myId)
 
 // 내 정보 조회
 void myPage(string myId, string type) {
-    string action, pw, chckPW;
+    string action, pw, chckPW, friendList;
     // MySQL Connector/C++ 초기화
     sql::mysql::MySQL_Driver* driver;
     sql::Connection* con;
@@ -553,16 +560,16 @@ void myPage(string myId, string type) {
     if (type == "myInfo") {
         while (res->next()) {
             pw = res->getString("passWord");
-
+            friendList = res->getString("friendList");
             textcolor(VIOLET, BLACK);
-            cout << endl;
+            cout << endl << endl;
             cout << "               ▶▶▶   내정보 조회   ◀◀◀                " << endl << endl;
             cout << "           ▷ ID : " << res->getString("memberID") << endl << endl;
             cout << "           ▷ PW : " << pw << endl << endl;
             cout << "           ▷ NAME : " << res->getString("name") << endl << endl;
             cout << "           ▷ PHONENUMBER : " << res->getString("phoneNumber") << endl << endl;
             cout << "           ▷ GROUP : " << res->getString("groupName") << endl << endl;
-            cout << "           ▷ FRIEND : " << res->getString("friendList") << endl << endl;
+            cout << "           ▷ FRIEND : " << friendList.erase(0,1) << endl << endl;
             textcolor(GRAY, BLACK);
         }
 
@@ -570,11 +577,13 @@ void myPage(string myId, string type) {
         {
             cout << "\n  정보 수정 : Y, 뒤로 가기 : N" << endl;
             cin >> action;
+            cin.ignore();
             if (action == "Y")
             {
                 system("cls");
                 cout << "비밀번호를 입력하세요 : ";
                 cin >> chckPW;
+                cin.ignore();
                 if (chckPW == pw)
                 {
                     updateMemberInfo(myId);
@@ -598,12 +607,13 @@ void myPage(string myId, string type) {
     }
     else if (type == "friendInfo") {
         while (res->next()) {
+            friendList = res->getString("friendList");
             cout << "\n  ◇◆◇  친구 정보 조회  ◆◇◆  " << endl;
             cout << "   ID : " << res->getString("memberID") << endl;
             cout << "   NAME : " << res->getString("name") << endl;
             cout << "   PHONENUMBER : " << res->getString("phoneNumber") << endl;
             cout << "   GROUP : " << res->getString("groupName") << endl;
-            cout << "   FRIEND : " << res->getString("friendList") << endl;
+            cout << "   FRIEND : " << friendList.erase(0, 1) << endl;
             cout << "  ◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆  " << endl;
         }
     }
@@ -649,9 +659,11 @@ void getMyfriendInfo(string myId) {
     while (res->next()) {
         friendList = res->getString("friendList");
         if (friendList != "") {
-            cout << "친구 List : " << friendList << endl;
-            cout << "확인하고 싶은 친구의 id를 입력하세요.";
+            friendList.erase(0, 1);
+            cout << "친구 List : " << friendList << endl << endl;
+            cout << "확인하고 싶은 친구의 id를 입력하세요. : ";
             cin >> friendId;
+            cin.ignore();
             myPage(friendId, "friendInfo");
         }
         else {
@@ -696,10 +708,10 @@ void inputLogin(string inputId, string inputPw) {
     textcolor(GREEN, BLACK);
     cout << endl << endl;
 
-    cout << "                   ●          ●●        ●●●     ●●     ●    ●                         " << endl;
-    cout << "                   ●        ●    ●     ●           ●      ●●  ●                         " << endl;
-    cout << "                   ●        ●    ●     ●  ●●     ●      ●  ●●                         " << endl;
-    cout << "                   ●●●      ●●        ●● ●    ●●     ●    ●                         " << endl << endl << endl;
+    cout << "                   ●         ● ●        ●●●     ●●●     ●    ●                         " << endl;
+    cout << "                   ●        ●   ●     ●          ●      ● ●  ●                         " << endl;
+    cout << "                   ●        ●   ●     ●  ●●      ●      ●  ● ●                         " << endl;
+    cout << "                   ●●●       ● ●       ●● ●     ●●●     ●    ●                         " << endl << endl << endl;
     cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                         " << endl;
     cout << endl << endl << endl;
 
@@ -709,11 +721,13 @@ void inputLogin(string inputId, string inputPw) {
     if (inputId.empty()) {
         cout << "                   ID를 입력해주세요.(영어+숫자, 20자 이내) : ";
         cin >> inputId;
+        cin.ignore();
     }
 
     if (inputPw.empty()) {
         cout << "\n                   비밀번호를 입력해주세요.(숫자, 6자 이내) : ";
         cin >> inputPw;
+        cin.ignore();
     }
 
     // id, 비번 확인.
@@ -768,7 +782,6 @@ void successLogin(string myId) {
     cout << "△△△△△△△△△△△△△△" << endl;
 
     getline(cin, select);
-    getline(cin, select);
 
     while (true)
     {
@@ -822,7 +835,7 @@ void successLogin(string myId) {
         }
         else
         {
-            cout << "띠용잘못 입력하셨습니다. 다시 입력해주세요." << endl;
+            cout << "잘못 입력하셨습니다. 다시 입력해주세요." << endl;
             getline(cin, select);
         }
     }
@@ -830,8 +843,7 @@ void successLogin(string myId) {
     while (true) {
         cout << "\n이전으로 가기 (Y)" << endl;
         cin >> action;
-        string temp;
-        getline(cin, temp);
+        cin.ignore();
         if (action == "Y") {
             successLogin(myId);
             break;

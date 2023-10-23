@@ -10,12 +10,22 @@
 using namespace std;
 
 enum {
-    BLACK = 0,
-    GRAY = 7,
-    BLUE = 9,
+    BLACK,
+    DARK_BLUE,
+    DARK_GREEN,
+    DARK_SKYBLUE,
+    DARK_RED,
+    DARK_VOILET,
+    DAKR_YELLOW,
+    GRAY,
+    DARK_GRAY,
+    BLUE,
     GREEN,
-    RED = 12,
-    YELLOW = 14
+    SKYBLUE,
+    RED,
+    VIOLET,
+    YELLOW,
+    WHITE,
 };
 
 void textcolor(int foreground, int background);
@@ -74,7 +84,8 @@ void outputDM(string stream1, string stream2, string stream3, string stream4, st
         int eraseLength = 0;
         eraseLength = size(stream1) + size(stream2) + size(stream3) + size(stream4) + 3;
         msg.erase(0, eraseLength);
-        textcolor(BLACK, YELLOW);
+        cout << "                                                            ";
+        textcolor(BLACK, YELLOW); 
         cout << stream1 << "의 귓속말";
         textcolor(GRAY, BLACK);
         cout << " :" << msg << endl;
@@ -130,7 +141,7 @@ tuple<string, string, int> outputFriend(string stream1, string stream3, string s
 {
     if (stream3 == "/F" && stream4 == myId)
     {
-        cout << "ID '" << stream1 << "'이(가) 친구 요청을 보냈습니다. 수락하시겠습니까?(Y, N) :" << endl;
+        cout << "                                                            " << "ID '" << stream1 << "'이(가) 친구 요청을 보냈습니다. 수락하시겠습니까?(Y, N) :" << endl;
         return { stream1 , stream4, 1 };
     }
     return { "" , "", 0 };
@@ -146,7 +157,26 @@ void inputSpeaker(string myId, SOCKET client_sock)
     groupInfo = useSpeaker(myId);
 
     groupName = groupInfo[0];
-    cout << "[" << groupName << "]group에게 보낼 메세지 입력 : ";
+    cout << "[ ";
+    if (groupName == "red")
+    {
+        textcolor(RED, BLACK);
+    }
+    else if (groupName == "green")
+    {
+        textcolor(GREEN, BLACK);
+    }
+    else if (groupName == "blue")
+    {
+        textcolor(BLUE, BLACK);
+    }
+    else if (groupName == "yellow")
+    {
+        textcolor(YELLOW, BLACK);
+    }
+    cout << groupName;
+    textcolor(GRAY, BLACK);
+    cout << " ] 팀에게 보낼 메세지 입력 : ";
     getline(cin, message);
 
     for (int i = 1; i < groupInfo.size(); i++)
@@ -182,7 +212,7 @@ void outputSpeaker(string stream1, string stream2, string stream3, string stream
         {
             textcolor(YELLOW, BLACK);
         }
-        cout << stream1 << "의 그룹 메세지 :" << msg << endl;
+        cout << "                                                            " << stream1 << "의 그룹 메세지 :" << msg << endl;
         textcolor(GRAY, BLACK);
     }
 }

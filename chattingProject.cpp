@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
         system("cls");
         cout << endl;
         textcolor(YELLOW, BLACK);
-        cout << "▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
+        cout << "▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
         cout << endl << endl << endl << endl;
         cout << "           #             #     #   ###          #####  #                #          #   #        " << endl;
         cout << "           #     ####   ###   #   #            #       #               ####        #   #        " << endl;
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
         cout << "                                   ▶    2. 회원가입                                            " << endl;
         textcolor(YELLOW, BLACK);
         cout << endl << endl;
-        cout << "△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△" << endl;
+        cout << "△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△" << endl;
         textcolor(GRAY, BLACK);
 #ifdef USE_BATCH
         select = atoi(argv[1]);
@@ -451,10 +451,10 @@ void inputMembership()
 {
     textcolor(WHITE, BLACK);
     cout << endl << endl;
-    cout << "     ●●●       ●●        ●●     ●    ●                         " << endl;
-    cout << "       ●       ●    ●       ●      ●●  ●                         " << endl;
-    cout << "       ●       ●    ●       ●      ●  ●●                         " << endl;
-    cout << "     ●●         ●●        ●●     ●    ●                         " << endl << endl << endl;
+    cout << "     ●●●●       ●●●       ●●●     ●    ●                         " << endl;
+    cout << "       ●       ●   ●       ●      ● ●  ●                         " << endl;
+    cout << "       ●       ●   ●       ●      ●  ● ●                         " << endl;
+    cout << "     ●●         ●●●       ●●●     ●    ●                         " << endl << endl << endl;
     cout << " ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                   " << endl << endl;
     cout << endl << endl;
     textcolor(GRAY, BLACK);
@@ -680,11 +680,11 @@ void inputLogin(string inputId, string inputPw) {
 
     textcolor(GREEN, BLACK);
     cout << endl << endl;
-    cout << "                   ●          ●●        ●●●     ●●     ●    ●                         " << endl;
-    cout << "                   ●        ●    ●     ●           ●      ●●  ●                         " << endl;
-    cout << "                   ●        ●    ●     ●  ●●     ●      ●  ●●                         " << endl;
-    cout << "                   ●●●      ●●        ●● ●    ●●     ●    ●                         " << endl << endl << endl;
-    cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                         " << endl << endl;
+    cout << "                   ●          ●●        ●●●     ●●●     ●    ●                         " << endl;
+    cout << "                   ●        ●    ●     ●         ●      ● ●  ●                         " << endl;
+    cout << "                   ●        ●    ●     ●  ●●     ●      ●  ● ●                         " << endl;
+    cout << "                   ●●●        ●●        ●● ●    ●●●     ●    ●                         " << endl << endl << endl;
+    cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                            " << endl << endl;
     cout << endl << endl << endl << endl;
     textcolor(GRAY, BLACK);
 
@@ -736,7 +736,7 @@ void inputLogin(string inputId, string inputPw) {
 
 // 로그인 성공 후 기능 선택페이지
 void successLogin(string myId) {
-    string loginYN = "", select, action;
+    string loginYN = "", select, action, temp;
     system("cls");
 
     cout << "\n▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
@@ -747,7 +747,8 @@ void successLogin(string myId) {
     cout << "  5. 이전 DM 보기 " << endl;
     cout << "△△△△△△△△△△△△△△" << endl;
 
-    cin >> select;
+    getline(cin, temp);
+    getline(cin, select);
 
     while (true)
     {
@@ -803,7 +804,6 @@ void successLogin(string myId) {
         {
             cout << "잘못 입력하셨습니다. 다시 입력해주세요." << endl;
             getline(cin, select);
-            cin >> select;
         }
     }
 

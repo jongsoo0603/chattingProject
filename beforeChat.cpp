@@ -89,8 +89,11 @@ void getMyDM(string myId) {
                 eraseLength = size(stream1) + size(stream2) + size(stream3) + size(stream4) + 3;
                 msg.erase(0, eraseLength);
 
-                cout << "[" << res->getString("chatDateTime") << " ] ";
-                cout << stream1 << "의 귓속말 :" << msg << endl;
+                cout << "[" << res->getString("chatDateTime") << "] ";
+                textcolor(BLACK, YELLOW);
+                cout << stream1 << "의 귓속말 :";
+                textcolor(GRAY, BLACK);
+                cout << msg << endl;
             }
         }
         delete res;
@@ -211,6 +214,11 @@ void getBeforeChat(string myId) {
         }
         chatTime = "";
     }
+
+    cout << "\n   △ [";
+    cout << t->tm_year + 1900 << "년 " << t->tm_mon + 1 << "월 " << t->tm_mday << "일 ] ";
+    cout << "대화 내용 △" << endl;
+
     cout << endl;
     cout << endl;
     textcolor(VIOLET, WHITE);

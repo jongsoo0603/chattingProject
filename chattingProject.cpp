@@ -19,7 +19,7 @@
 
 
 #define MAX_SIZE 1024
-#define USE_BATCH
+//#define USE_BATCH
 
 using namespace std;
 
@@ -97,10 +97,24 @@ int main(int argc, char* argv[])
     while(true)
     {
         system("cls");
-        cout << "▽▽▽▽▽▽▽▽▽▽▽" << endl;
-        cout << "  1. 로그인 " << endl;
-        cout << "  2. 회원가입 " << endl;
-        cout << "△△△△△△△△△△△" << endl;
+        cout << endl;
+        textcolor(YELLOW, BLACK);
+        cout << "▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
+        cout << endl << endl << endl << endl;
+        cout << "           #             #     #   ###          #####  #                #          #   #        " << endl;
+        cout << "           #     ####   ###   #   #            #       #               ####        #   #        " << endl;
+        cout << "           #    ######   #        ###         ##       ####    #####    #          #   #        " << endl;
+        cout << "           #    #        #           #         #       #   #  #    ##   #                       " << endl;
+        cout << "           ####  ####    ##       ###           #####  #   #   #### #   ###        #   #        " << endl;
+        cout << endl << endl << endl << endl << endl << endl;
+        textcolor(GREEN, BLACK);
+        cout << "                                   ▶    1. 로그인                                              " << endl;
+        textcolor(WHITE, BLACK);
+        cout << "                                   ▶    2. 회원가입                                            " << endl;
+        textcolor(YELLOW, BLACK);
+        cout << endl << endl;
+        cout << "△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△" << endl;
+        textcolor(GRAY, BLACK);
 #ifdef USE_BATCH
         select = atoi(argv[1]);
 #else
@@ -432,6 +446,16 @@ string makeAllID()
 // 회원가입 조건 확인
 void inputMembership()
 {
+    textcolor(WHITE, BLACK);
+    cout << endl << endl;
+    cout << "     ●●●       ●●        ●●     ●    ●                         " << endl;
+    cout << "       ●       ●    ●       ●      ●●  ●                         " << endl;
+    cout << "       ●       ●    ●       ●      ●  ●●                         " << endl;
+    cout << "     ●●         ●●        ●●     ●    ●                         " << endl << endl << endl;
+    cout << " ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                   " << endl << endl;
+    cout << endl << endl;
+    textcolor(GRAY, BLACK);
+
     string id, pw, name, phone;
     id = checkCondition(1);
     pw = checkCondition(2);
@@ -651,15 +675,24 @@ void inputLogin(string inputId, string inputPw) {
     stmt = con->createStatement();
     res = stmt->executeQuery("SELECT memberID,passWord FROM member");
 
+    textcolor(GREEN, BLACK);
+    cout << endl << endl;
+    cout << "                   ●          ●●        ●●●     ●●     ●    ●                         " << endl;
+    cout << "                   ●        ●    ●     ●           ●      ●●  ●                         " << endl;
+    cout << "                   ●        ●    ●     ●  ●●     ●      ●  ●●                         " << endl;
+    cout << "                   ●●●      ●●        ●● ●    ●●     ●    ●                         " << endl << endl << endl;
+    cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                         " << endl << endl;
+    cout << endl << endl << endl << endl;
+    textcolor(GRAY, BLACK);
 
     // id,비번 입력받기.
     if (inputId.empty()) {
-        cout << "\n\nID를 입력해주세요.(영어+숫자, 20자 이내) : ";
+        cout << "                   ID를 입력해주세요.(영어+숫자, 20자 이내) : ";
         cin >> inputId;
     }
 
     if (inputPw.empty()) {
-        cout << "\n비밀번호를 입력해주세요.(숫자, 6자 이내) : ";
+        cout << "\n                   비밀번호를 입력해주세요.(숫자, 6자 이내) : ";
         cin >> inputPw;
     }
 

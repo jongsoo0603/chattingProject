@@ -134,6 +134,7 @@ void getBeforeChat(string myId) {
     string sql;
     sql = "SELECT memberID, chatContent, chatDateTime, DM, receiverID FROM chat WHERE DATE_FORMAT(chatDateTime, '%Y-%m-%d') = CURDATE() AND DM = 0";
     sql += " UNION DISTINCT SELECT memberID, chatContent, chatDateTime, DM, receiverID FROM chat WHERE DATE_FORMAT(chatDateTime, '%Y-%m-%d') = CURDATE() AND DM = 1 AND receiverID = '" + myId + "'";
+    sql += " ORDER BY chatDateTime";
     res = stmt->executeQuery(sql);
 
     // 이전 대화 출력

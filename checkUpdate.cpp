@@ -104,24 +104,26 @@ string checkCondition(int conditionSelect)
             }
             else
             {
-                for (int i = 0; i < size(name); i++) // 문자 만 있는지 체크
+                for (int i = 0; i < size(name); i++) // 영어, 한글 만 있는지 체크
                 {
-                    if (isalpha(name[i]) == 0)
+                    if (isalpha(name[i]) == 0) // 영어도 아니고
                     {
-                        nameCheck = false;
+                        if((name[i] & 0x80) != 0x80) // 한글도 아니면
+                        { 
+                            nameCheck = false;
+                        }
                     }
                 }
-                if(nameCheck == false)
-                {
-
-                    cout << "이름은 문자 만 사용할 수 있습니다." << endl;
-                    nameCheck = true;
-                }
-                else
-                {
-                    return name;
-                    break;
-                }
+            }
+            if (nameCheck == false)
+            {
+                cout << "영어나 한글 문자 이외의 문자가 포함되어 있습니다." << endl;
+                nameCheck = true;
+            }
+            else
+            {
+                return name;
+                break;
             }
         }
         break;

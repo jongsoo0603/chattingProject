@@ -61,40 +61,41 @@ int updateSelect;
 
 
 // - participant.cpp
-vector<vector<string>> getPtcpt(string myId);                           // 채팅 참가자 목록 출력 (전체)
-vector<string> useSpeaker(string myId);                                 // 팀 채팅 사용 (같은 그룹내 ID 조회)
-string loginCheck(string myId);                                         // 로그인 중복체크 (참가자 중 조회)
+vector<vector<string>> getPtcpt(string myId);                               // 채팅 참가자 목록 출력 (전체)
+vector<string> useSpeaker(string myId);                                     // 확성기 사용 (같은 그룹내 ID 조회)
+string loginCheck(string myId);                                             // 로그인 중복체크 (참가자 중 조회)
 
 // - check_update.cpp
-void update(string myId, int updateSelect, string updateContents);      // DB 업데이트
-string checkCondition(int conditionSelect);                             // 각 항목별로 조건 판별 후 문제 없으면 string으로 반환
+void update(string myId, int updateSelect, string updateContents);          // DB 업데이트
+string checkCondition(int conditionSelect);                                 // 각 항목별로 조건 판별 후 string으로 반환
 
 // beforeChat.cpp
-void getMyDM(string myId);                                              // 이전 DM 조회 (전체일자 조회)
-void getBeforeChat(string myId);                                        // 이전 전체 대화 내용 조회 (당일건만 조회)
+void getMyDM(string myId);                                                  // 이전 DM 조회 (전체일자 조회)
+void getBeforeChat(string myId);                                            // 이전 전체 대화 내용 조회 (당일건만 조회)
 
 // - chattingFunc.cpp
-string inputDM(string myId);                                            // DM 기능 입력부
+string inputDM(string myId);                                                                                                 // DM 기능 입력부
 void outputDM(string stream1, string stream2, string stream3, string stream4, string msg, string myId);                      // DM 기능 출력부
-string inputFriend(string myId);                                        // 친구추가 기능 입력부
+string inputFriend(string myId);                                                                                             // 친구추가 기능 입력부
 tuple<string, string, int> outputFriend(string stream1, string stream3, string stream4, string myId);                        // 친구추가 기능 출력부
-void inputSpeaker(string myId, SOCKET client_sock);                     // 팀 채팅 기능 입력부
+void inputSpeaker(string myId, SOCKET client_sock);                                                                          // 팀 채팅 기능 입력부
 void outputSpeaker(string stream1, string stream2, string stream3, string stream4, string stream5, string msg, string myId); // 팀 채팅 기능 출력부
 
 // - chattingProject.cpp
-void textcolor(int foreground, int background);                         // 콘솔 텍스트 색상 변경해주는 함수
-string getFriend(string sender, string accepter);                       // 신청자 친구 목록 받고, 목록에 수락자 추가 한 string 반환
-void insertMemberInfo(string id, string pw, string name, string phone); // db에 회원가입 정보 삽입
-string makeAllID();                                                     // db에서 모든 id 받아와서 string으로 붙이고 반환
-void inputMembership();                                                 // 회원가입 조건 확인
-void myPage(string myId, string type);                                  // 내 정보 조회
-void updateMemberInfo(string myId);                                     // 내 정보 수정
-void getMyfriendInfo(string myId);                                      // 친구 정보 조회
-void inputLogin(string inputId, string inputPw);                        // 로그인 조건 확인
-void successLogin(string inputId);                                      // 로그인 성공 후 기능 선택페이지
-int chat_recv();                                                        // 채팅 받아옴
-void client(string myId);                                               // 받아온 채팅 출력, 채팅 보냄
-void gotoxy(int x, int y);                                              // 커서 이동
+void textcolor(int foreground, int background);                             // 콘솔 텍스트 색상 변경해주는 함수
+string getFriend(string sender, string accepter);                           // 신청자 친구 목록 받고, 목록에 수락자 추가 한 string 반환
+string insertMemberInfo(string id, string pw, string name, string phone);   // db에 회원가입 정보 삽입
+string makeAllID();                                                         // db에서 모든 id 받아와서 string으로 붙이고 반환
+void inputMembership();                                                     // 회원가입 조건 확인
+void myPage(string myId, string type);                                      // 내 정보 조회
+void updateMemberInfo(string myId);                                         // 내 정보 수정
+void getMyfriendInfo(string myId);                                          // 친구 정보 조회
+void inputLogin(string inputId, string inputPw);                            // 로그인 조건 확인
+void successLogin(string inputId);                                          // 로그인 성공 후 기능 선택페이지
+int chat_recv();                                                            // 채팅 받아옴
+void client(string myId);                                                   // 받아온 채팅 출력, 채팅 보냄
+void gotoxy(int x, int y);                                                  // 커서 이동
+
 
 
 
@@ -394,7 +395,7 @@ string getFriend(string sender, string accepter)
 
 
 // db에 회원가입 정보 삽입
-void insertMemberInfo(string id, string pw, string name, string phone)
+string insertMemberInfo(string id, string pw, string name, string phone)
 {
     // MySQL Connector/C++ 초기화
     sql::mysql::MySQL_Driver* driver; // 추후 해제하지 않아도 Connector/C++가 자동으로 해제해 줌
@@ -449,13 +450,11 @@ void insertMemberInfo(string id, string pw, string name, string phone)
     pstmt->setString(6, "");
     pstmt->execute();
 
-    cout << "\n☆★☆ 회원가입 완료 ☆★☆" << endl;
-    cout << "☆회원님은 " << groupName << "그룹입니다.☆" << endl;
-    cout << endl;
-
     // MySQL Connector/C++ 정리
     delete pstmt;
     delete con;
+
+    return groupName;
 }
 
 
@@ -513,12 +512,31 @@ void inputMembership()
     cout << endl << endl;
     textcolor(GRAY, BLACK);
 
-    string id, pw, name, phone;
+    string id, pw, name, phone, groupName, action;
     id = checkCondition(1);
     pw = checkCondition(2);
     name = checkCondition(3);
     phone = checkCondition(4);
-    insertMemberInfo(id, pw, name, phone);
+    groupName = insertMemberInfo(id, pw, name, phone);
+
+    textcolor(SKYBLUE, BLACK);
+    cout << "\n   ☆   ★   ☆   ★   ☆   ★   ☆   ★   ☆    ★" << endl;
+    cout << "\n   ☆               회원가입   완료              ★" << endl;
+    cout << "\n   ☆   ★   ☆   ★   ☆   ★   ☆   ★   ☆    ★" << endl << endl;
+    cout << "        ☞ 회원님은 " << groupName << " 그룹입니다.  " << endl << endl << endl;
+    textcolor(GRAY, BLACK);
+
+    while (true) {
+        cout << "\n로그인하러 가기(L)" << endl;
+        cin >> action;
+
+        if (action == "L") {
+            break;
+        }
+        else {
+            cout << "잘못입력하였습니다. " << endl;
+        }
+    }
 }
 
 

@@ -492,12 +492,13 @@ void updateMemberInfo(string myId)
     while (true)
     {
         system("cls");
-        cout << "\n▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
-        cout << "  1. 초기 화면으로 돌아가기 " << endl;
-        cout << "  2. 비밀번호 수정 " << endl;
-        cout << "  3. 이름 수정 " << endl;
-        cout << "  4. 전화번호 수정 " << endl;
-        cout << "△△△△△△△△△△△△△△" << endl;
+        cout << endl << endl << endl ;       
+        cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽          " << endl << endl;
+        cout << "                           1. 초기 화면으로 돌아가기                   " << endl << endl;
+        cout << "                           2. 비밀번호 수정                            " << endl << endl;
+        cout << "                           3. 이름 수정                                " << endl << endl;
+        cout << "                           4. 전화번호 수정                            " << endl << endl;
+        cout << "                           ";
         cin >> updateSelect;
         cin.ignore();
 
@@ -800,7 +801,7 @@ void successLogin(string myId) {
     cout << "                                   3.  내 정보 조회                                            " << endl << endl;
     cout << "                                   4.  친구정보 조회                                           " << endl << endl;
     cout << "                                   5.  이전 DM 조회                                            " << endl << endl;
-
+    cout << "                                   ";
     getline(cin, select);
 
     while (true)
@@ -861,10 +862,10 @@ void successLogin(string myId) {
     }
 
     while (true) {
-        cout << "\n이전으로 가기 (Y)" << endl;
+        cout << "\n이전으로 가기 (N)" << endl;
         cin >> action;
         cin.ignore();
-        if (action == "Y") {
+        if (action == "N") {
             successLogin(myId);
             break;
         }

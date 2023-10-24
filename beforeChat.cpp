@@ -69,7 +69,8 @@ void getMyDM(string myId) {
 
 
     // 이전 DM 출력
-    cout << "▽ 이전 DM ▽" << endl;
+    cout << endl;
+    cout << "▽   이전 DM   ▽" << endl << endl;
     if (res) {
         string msg;
         string stream1, stream2, stream3, stream4, stream5;
@@ -98,7 +99,7 @@ void getMyDM(string myId) {
         }
         delete res;
         delete con;
-
+        cout << endl << endl;
 
     }
     else {

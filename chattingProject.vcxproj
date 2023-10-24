@@ -132,7 +132,9 @@
   <ItemGroup>
     <ClCompile Include="beforeChat.cpp" />
     <ClCompile Include="chattingFunc.cpp" />
-    <ClCompile Include="chattingProject.cpp" />
+    <ClCompile Include="chattingProject.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="participant.cpp" />
     <ClCompile Include="check_update.cpp" />
   </ItemGroup>

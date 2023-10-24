@@ -100,7 +100,7 @@ vector<vector<string>> getPtcpt(string myId) {
 }
 
 
-// 확성기 (같은 그룹내 ID 조회)
+// 팀 채팅 (같은 그룹내 ID 조회)
 vector<string> useSpeaker(string myId) {
     // MySQL Connector/C++ 초기화
     sql::mysql::MySQL_Driver* driver;

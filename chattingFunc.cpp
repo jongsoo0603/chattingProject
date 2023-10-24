@@ -141,7 +141,7 @@ tuple<string, string, int> outputFriend(string stream1, string stream3, string s
 {
     if (stream3 == "/F" && stream4 == myId)
     {
-        cout << "                                                            " << "ID '" << stream1 << "'이(가) 친구 요청을 보냈습니다. 수락하시겠습니까?(Y, N) :" << endl;
+        cout << "                                                            " << "ID '" << stream1 << "'이(가) 친구 요청을 보냈습니다. 수락하시겠습니까?(Y, N)\n :";
         return { stream1 , stream4, 1 };
     }
     return { "" , "", 0 };

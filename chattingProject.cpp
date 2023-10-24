@@ -50,7 +50,7 @@ enum {
 
 
 
-const string server = "tcp://127.0.0.1:3306";                           // 데이터베이스 주소
+const string server = "tcp://127.0.0.1:3306";                           // 데이터베이스 주소 "tcp://127.0.0.1:3306"
 const string username = "root";                                         // 데이터베이스 사용자
 const string password = "1122";                                         // 데이터베이스 접속 비밀번호
 SOCKET client_sock;
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
                     {
                         if (y - 1 > 16)
                         {
-                            y--;
+                            y -= 2;
                         }
                         break;
                     }
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
                     {
                         if (y + 1 < 20)
                         {
-                            y++;
+                            y += 2;
                         }
                         break;
                     }
@@ -520,17 +520,37 @@ void inputMembership()
     groupName = insertMemberInfo(id, pw, name, phone);
 
     textcolor(SKYBLUE, BLACK);
-    cout << "\n   ☆   ★   ☆   ★   ☆   ★   ☆   ★   ☆    ★" << endl;
-    cout << "\n   ☆               회원가입   완료              ★" << endl;
-    cout << "\n   ☆   ★   ☆   ★   ☆   ★   ☆   ★   ☆    ★" << endl << endl;
-    cout << "        ☞ 회원님은 " << groupName << " 그룹입니다.  " << endl << endl << endl;
+    cout << "\n   ☆   ★   ☆   ★   ☆   ★   ☆   ★   ☆   ★   ☆   ★" << endl;
+    cout << "\n   ☆               회원가입   완료             ★" << endl;
+    cout << "\n   ☆   ★   ☆   ★   ☆   ★   ☆   ★   ☆   ★   ☆   ★" << endl << endl;
+    cout << "        ☞ 회원님은 ";
+    if (groupName == "red")
+    {
+        textcolor(RED, BLACK);
+    }
+    else if (groupName == "green")
+    {
+        textcolor(GREEN, BLACK);
+    }
+    else if (groupName == "blue")
+    {
+        textcolor(BLUE, BLACK);
+    }
+    else if (groupName == "yellow")
+    {
+        textcolor(YELLOW, BLACK);
+    }
+    cout << groupName;
+    cout << " 그룹입니다.  " << endl << endl << endl;
     textcolor(GRAY, BLACK);
 
     while (true) {
         cout << "\n로그인하러 가기(L)" << endl;
         cin >> action;
-
+        cin.ignore();
         if (action == "L") {
+            system("cls");
+            inputLogin("", "");
             break;
         }
         else {
@@ -573,7 +593,7 @@ void updateMemberInfo(string myId)
                 {
                     if (y - 1 > 4)
                     {
-                        y--;
+                        y -= 2;
                     }
                     break;
                 }
@@ -581,7 +601,7 @@ void updateMemberInfo(string myId)
                 {
                     if (y + 1 < 12)
                     {
-                        y++;
+                        y += 2;
                     }
                     break;
                 }
@@ -753,7 +773,7 @@ void getMyfriendInfo(string myId) {
         friendList = res->getString("friendList");
         if (friendList != "") {
             friendList.erase(0, 1);
-            cout << "친구 List : " << friendList << endl << endl;
+            cout << "친구 List : [ " << friendList << " ]" << endl << endl;
             cout << "확인하고 싶은 친구의 id를 입력하세요. : ";
             cin >> friendId;
             cin.ignore();
@@ -911,7 +931,7 @@ void successLogin(string myId) {
                 {
                     if (y - 1 > 11)
                     {
-                        y--;
+                        y -= 2;
                     }
                     break;
                 }
@@ -919,7 +939,7 @@ void successLogin(string myId) {
                 {
                     if (y + 1 < 21)
                     {
-                        y++;
+                        y += 2;
                     }
                     break;
                 }

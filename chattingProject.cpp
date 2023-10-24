@@ -14,13 +14,15 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <conio.h> //getch() 포함 헤더
 
 
-
-
+#define UP 72
+#define DOWN 80
+#define ENTER 13
 #define MAX_SIZE 1024
-
 //#define USE_BATCH
+
 
 using namespace std;
 
@@ -92,6 +94,7 @@ void inputLogin(string inputId, string inputPw);                            // �
 void successLogin(string inputId);                                          // 로그인 성공 후 기능 선택페이지
 int chat_recv();                                                            // 채팅 받아옴
 void client(string myId);                                                   // 받아온 채팅 출력, 채팅 보냄
+void gotoxy(int x, int y);                                                  // 커서 이동
 
 
 
@@ -101,11 +104,13 @@ void client(string myId);                                                   // �
 // 채팅 프로그램 - 메인.
 int main(int argc, char* argv[])
 {  
-    int select;
+    int select, x = 33, y = 17, tmpX, tmpY;
+    int input;
 
     while(true)
     {
         system("cls");
+        
         cout << endl;
         textcolor(YELLOW, BLACK);
         cout << "▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
@@ -119,19 +124,55 @@ int main(int argc, char* argv[])
         textcolor(GREEN, BLACK);
         cout << "                                   ▶    1. 로그인                                              " << endl;
         textcolor(SKYBLUE, BLACK);
-        cout << "                                   ▶    2. 회원가입                                            " << endl;
+        cout << "\n                                   ▶    2. 회원가입                                            " << endl;
         textcolor(YELLOW, BLACK);
         cout << endl << endl;
         cout << "△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△" << endl;
         textcolor(GRAY, BLACK);
+
+        gotoxy(x, y);
+        cout << "==▷";
+        if (_kbhit())
+        {
+            input = _getch();
+            if (input == ENTER && x == 33 && (y == 17 || y == 19))
+            {
+                break;
+            }
+            else
+            {
+                switch (input)
+                {
+                case UP: 
+                    {
+                        if (y - 1 > 16)
+                        {
+                            y--;
+                        }
+                        break;
+                    }
+                case DOWN: 
+                    {
+                        if (y + 1 < 20)
+                        {
+                            y++;
+                        }
+                        break;
+                    }
+                }
+            }
+            
+        }
+        gotoxy(x, y);
+        Sleep(50);
+    }
+
 #ifdef USE_BATCH
         select = atoi(argv[1]);
 #else
-        cin >> select; 
-        cin.ignore();
         system("cls");
 #endif
-        if (select == 1) 
+        if (x == 33 && y == 17) 
         {
             // 로그인
 #ifdef USE_BATCH
@@ -139,18 +180,14 @@ int main(int argc, char* argv[])
 #else
             inputLogin("", "");
 #endif
-            break;
+            // break;
         }
-        else if (select == 2) 
+        else if (x == 33 && y == 19)
         {
             // 회원가입
             inputMembership();
         }
-        else 
-        {
-            cout << "\n잘못 입력하셨습니다." << endl;
-        }
-    }
+    
 }
 
 
@@ -898,4 +935,10 @@ void textcolor(int foreground, int background)
 {
     int color = foreground + background * 16;
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
+
+// 커서 이동 함수
+void gotoxy(int x, int y) {
+    COORD posXY = { x,y };
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), posXY);
 }

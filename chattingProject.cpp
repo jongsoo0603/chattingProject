@@ -104,13 +104,11 @@ void gotoxy(int x, int y);                                                  // �
 // 채팅 프로그램 - 메인.
 int main(int argc, char* argv[])
 {  
-    int select, x = 33, y = 17, tmpX, tmpY;
-    int input;
+    int select, x = 39, y = 17, input;
 
     while(true)
     {
         system("cls");
-        
         cout << endl;
         textcolor(YELLOW, BLACK);
         cout << "▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
@@ -122,20 +120,22 @@ int main(int argc, char* argv[])
         cout << "           ####  ####    ##       ###           #####  #   #   #### #   ###        #   #        " << endl;
         cout << endl << endl << endl << endl << endl << endl;
         textcolor(GREEN, BLACK);
-        cout << "                                   ▶    1. 로그인                                              " << endl;
+        cout << "                                       ▷ 로그인                                              " << endl;
         textcolor(SKYBLUE, BLACK);
-        cout << "\n                                   ▶    2. 회원가입                                            " << endl;
+        cout << "\n                                       ▷ 회원가입                                            " << endl;
         textcolor(YELLOW, BLACK);
         cout << endl << endl;
         cout << "△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△△" << endl;
         textcolor(GRAY, BLACK);
 
         gotoxy(x, y);
-        cout << "==▷";
+        textcolor(BLACK, WHITE);
+        cout << "▶";
+        textcolor(GRAY, BLACK);
         if (_kbhit())
         {
             input = _getch();
-            if (input == ENTER && x == 33 && (y == 17 || y == 19))
+            if (input == ENTER && x == 39 && (y == 17 || y == 19))
             {
                 break;
             }
@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
 #else
         system("cls");
 #endif
-        if (x == 33 && y == 17) 
+        if (x == 39 && y == 17) 
         {
             // 로그인
 #ifdef USE_BATCH
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 #endif
             // break;
         }
-        else if (x == 33 && y == 19)
+        else if (x == 39 && y == 19)
         {
             // 회원가입
             inputMembership();
@@ -543,40 +543,71 @@ void inputMembership()
 // 내 정보 수정
 void updateMemberInfo(string myId)
 {
+    int  x = 23, y = 5, input;
     while (true)
     {
         system("cls");
-        cout << endl << endl << endl ;       
+        cout << endl << endl << endl;
         cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽          " << endl << endl;
-        cout << "                           1. 초기 화면으로 돌아가기                   " << endl << endl;
-        cout << "                           2. 비밀번호 수정                            " << endl << endl;
-        cout << "                           3. 이름 수정                                " << endl << endl;
-        cout << "                           4. 전화번호 수정                            " << endl << endl;
-        cout << "                           ";
-        cin >> updateSelect;
-        cin.ignore();
+        cout << "                       ▷ 초기 화면으로 돌아가기                   " << endl << endl;
+        cout << "                       ▷ 비밀번호 수정                            " << endl << endl;
+        cout << "                       ▷ 이름 수정                                " << endl << endl;
+        cout << "                       ▷ 전화번호 수정                            " << endl << endl;
 
-        if (updateSelect < 1 && updateSelect > 4)
+        gotoxy(x, y);
+        textcolor(BLACK, WHITE);
+        cout << "▶";
+        textcolor(GRAY, BLACK);
+        if (_kbhit())
         {
-            cout << "잘못 입력하셨습니다." << endl;
-        }
-        else
-        {
-
-            if (updateSelect == 1)
+            input = _getch();
+            if (input == ENTER && x == 23 && (y == 5 || y == 7 || y == 9 || y == 11))
             {
-                successLogin(myId);
+                break;
             }
             else
             {
-                update(myId, updateSelect, checkCondition(updateSelect));
-                system("cls");
-                myPage(myId, "myInfo");
+                switch (input)
+                {
+                case UP:
+                {
+                    if (y - 1 > 4)
+                    {
+                        y--;
+                    }
+                    break;
+                }
+                case DOWN:
+                {
+                    if (y + 1 < 12)
+                    {
+                        y++;
+                    }
+                    break;
+                }
+                }
             }
-            break;
+
         }
+        gotoxy(x, y);
+        Sleep(50);
     }
-}
+
+    if (x == 23 && y == 5)
+    {
+        successLogin(myId);
+    }
+    else if(x == 23 && (y == 7 || y == 9 || y == 11))
+    {
+        if (y == 7) updateSelect = 2;
+        else if (y == 9) updateSelect = 3;
+        else if (y == 11) updateSelect = 4;
+        system("cls");
+        update(myId, updateSelect, checkCondition(updateSelect));
+        system("cls");
+        myPage(myId, "myInfo");
+    }
+ }
 
 
 // 내 정보 조회
@@ -644,8 +675,7 @@ void myPage(string myId, string type) {
             {
                 system("cls");
                 cout << "비밀번호를 입력하세요 : ";
-                cin >> chckPW;
-                cin.ignore();
+                getline(cin, chckPW);
                 if (chckPW == pw)
                 {
                     updateMemberInfo(myId);
@@ -840,79 +870,108 @@ void inputLogin(string inputId, string inputPw) {
 
 // 로그인 성공 후 기능 선택페이지
 void successLogin(string myId) {
-    string loginYN = "", select, action;
-    system("cls");
-    textcolor(GREEN, BLACK);
-    cout << endl << endl;
-    cout << "                   ●         ● ●        ●●●     ●●●     ●    ●                      " << endl;
-    cout << "                   ●        ●   ●     ●          ●      ● ●  ●                         " << endl;
-    cout << "                   ●        ●   ●     ●  ●●      ●      ●  ● ●                       " << endl;
-    cout << "                   ●●●       ● ●       ●● ●     ●●●     ●    ●                    " << endl << endl << endl;
-    cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                        " << endl << endl << endl;
-    textcolor(GRAY, BLACK);
-    cout << "                                   1.  채팅방 참가                                             " << endl << endl;
-    cout << "                                   2.  채팅방 참가자 조회                                      " << endl << endl;
-    cout << "                                   3.  내 정보 조회                                            " << endl << endl;
-    cout << "                                   4.  친구정보 조회                                           " << endl << endl;
-    cout << "                                   5.  이전 DM 조회                                            " << endl << endl;
-    cout << "                                   ";
-    getline(cin, select);
+    string loginYN = "", action;
+    int x = 31, y = 12, input;
 
     while (true)
     {
-        if (select == "1")
-        {
-            // 로그인 중복체크.
-            loginYN = loginCheck(myId);
+        system("cls");
+        textcolor(GREEN, BLACK);
+        cout << endl << endl;
+        cout << "                   ●   ●   ●●●●●   ●       ●         ●●●●        " << endl;
+        cout << "                   ●   ●   ●       ●       ●        ●    ●        " << endl;
+        cout << "                   ●●●●●   ●●●●●   ●       ●        ●    ●       " << endl;
+        cout << "                   ●   ●   ●       ●       ●        ●    ●     " << endl;
+        cout << "                   ●   ●   ●●●●●   ●●●●●   ●●●●●     ●●●●                 " << endl << endl << endl;
+        cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                           " << endl << endl << endl;
+        textcolor(GRAY, BLACK);
+        cout << "                               ▷  채팅방 참가                                             " << endl << endl;
+        cout << "                               ▷  채팅방 참가자 조회                                      " << endl << endl;
+        cout << "                               ▷  내 정보 조회                                            " << endl << endl;
+        cout << "                               ▷  친구정보 조회                                           " << endl << endl;
+        cout << "                               ▷  이전 DM 조회                                            " << endl << endl;
 
-            if (loginYN == "Y") {
-                cout << "해당 ID는 이미 채팅방에 참가했기 때문에 채팅방에 참여하실 수 없습니다. " << endl;
-            }
-            else if (loginYN == "F")
+        gotoxy(x, y);
+        textcolor(BLACK, WHITE);
+        cout << "▶";
+        textcolor(GRAY, BLACK);
+
+        if (_kbhit())
+        {
+            input = _getch();
+            if (input == ENTER && x == 31 && (y == 12 || y == 14 || y == 16 || y == 18 || y == 20))
             {
-                cout << "채팅방 최대 인원을 초과했기 때문에 채팅방에 참여하실 수 없습니다." << endl;
+                break;
             }
-            else if (loginYN == "N") {
-                // 채팅방 입장
-                system("cls");
-                client(myId);
+            else
+            {
+                switch (input)
+                {
+                case UP:
+                {
+                    if (y - 1 > 11)
+                    {
+                        y--;
+                    }
+                    break;
+                }
+                case DOWN:
+                {
+                    if (y + 1 < 21)
+                    {
+                        y++;
+                    }
+                    break;
+                }
+                }
             }
-            break;
-        }
-        else if (select == "2")
-        {
-            // 채팅방 참가자 조회
-            system("cls");
-            getPtcpt(myId);
-            break;
-        }
-        else if (select == "3")
-        {
-            // 내 정보 조회
-            system("cls");
-            myPage(myId, "myInfo");
-            break;
-        }
-        else if (select == "4")
-        {
-            // 친구정보 조회
-            system("cls");
-            getMyfriendInfo(myId);
-            break;
 
         }
-        else if (select == "5")
+        gotoxy(x, y);
+        Sleep(50);
+    }
+    if (x == 31 && y == 12)
+    {
+        // 로그인 중복체크.
+        loginYN = loginCheck(myId);
+
+        if (loginYN == "Y") {
+            cout << "해당 ID는 이미 채팅방에 참가했기 때문에 채팅방에 참여하실 수 없습니다. " << endl;
+        }
+        else if (loginYN == "F")
         {
-            // 이전 DM 조회
+            cout << "채팅방 최대 인원을 초과했기 때문에 채팅방에 참여하실 수 없습니다." << endl;
+        }
+        else if (loginYN == "N") {
+            // 채팅방 입장
             system("cls");
-            getMyDM(myId);
-            break;
+            client(myId);
         }
-        else
-        {
-            cout << "잘못 입력하셨습니다. 다시 입력해주세요." << endl;
-            getline(cin, select);
-        }
+    }
+    else if (x == 31 && y == 14)
+    {
+        // 채팅방 참가자 조회
+        system("cls");
+        getPtcpt(myId);
+    }
+    else if (x == 31 && y == 16)
+    {
+        // 내 정보 조회
+        system("cls");
+        myPage(myId, "myInfo");
+    }
+    else if (x == 31 && y == 18)
+    {
+        // 친구정보 조회
+        system("cls");
+        getMyfriendInfo(myId);
+
+    }
+    else if (x == 31 && y == 20)
+    {
+        // 이전 DM 조회
+        system("cls");
+        getMyDM(myId);
     }
 
     while (true) {

@@ -561,21 +561,28 @@ void myPage(string myId, string type) {
         while (res->next()) {
             pw = res->getString("passWord");
             friendList = res->getString("friendList");
-            textcolor(VIOLET, BLACK);
-            cout << endl << endl;
-            cout << "               ▶▶▶   내정보 조회   ◀◀◀                " << endl << endl;
-            cout << "           ▷ ID : " << res->getString("memberID") << endl << endl;
-            cout << "           ▷ PW : " << pw << endl << endl;
-            cout << "           ▷ NAME : " << res->getString("name") << endl << endl;
-            cout << "           ▷ PHONENUMBER : " << res->getString("phoneNumber") << endl << endl;
-            cout << "           ▷ GROUP : " << res->getString("groupName") << endl << endl;
-            cout << "           ▷ FRIEND : " << friendList.erase(0,1) << endl << endl;
+            cout << endl << endl << endl << endl << endl;
+            cout << "                               ▶▶▶   내정보 조회   ◀◀◀                "      << endl << endl << endl;
+            cout << "                               ▷ ID : " << res->getString("memberID")             << endl << endl;
+            cout << "                               ▷ PW : " << pw                                     << endl << endl;
+            cout << "                               ▷ NAME : " << res->getString("name")               << endl << endl;
+            cout << "                               ▷ PHONENUMBER : " << res->getString("phoneNumber") << endl << endl;
+            cout << "                               ▷ GROUP : " << res->getString("groupName")         << endl << endl;
+            cout << "                               ▷ FRIEND : " << friendList.erase(0,1)              << endl << endl << endl;
             textcolor(GRAY, BLACK);
         }
 
         while (true)
         {
-            cout << "\n  정보 수정 : Y, 뒤로 가기 : N" << endl;
+            cout << "\n                              ";
+            textcolor(WHITE, DARK_BLUE);
+            cout << "정보 수정 : Y, ";
+            textcolor(GRAY, BLACK);
+            cout << "  ";
+            textcolor(WHITE, DARK_RED);
+            cout << "뒤로 가기 : N " << endl;
+            textcolor(GRAY, BLACK);
+
             cin >> action;
             cin.ignore();
             if (action == "Y")
@@ -608,13 +615,14 @@ void myPage(string myId, string type) {
     else if (type == "friendInfo") {
         while (res->next()) {
             friendList = res->getString("friendList");
-            cout << "\n  ◇◆◇  친구 정보 조회  ◆◇◆  " << endl;
-            cout << "   ID : " << res->getString("memberID") << endl;
-            cout << "   NAME : " << res->getString("name") << endl;
-            cout << "   PHONENUMBER : " << res->getString("phoneNumber") << endl;
-            cout << "   GROUP : " << res->getString("groupName") << endl;
-            cout << "   FRIEND : " << friendList.erase(0, 1) << endl;
-            cout << "  ◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆  " << endl;
+            cout << endl << endl;
+            cout << "                               ▶▶▶   친구 정보 조회   ◀◀◀                "    << endl << endl << endl;
+            cout << "                               ▷ ID : " << res->getString("memberID")              << endl << endl;
+            cout << "                               ▷ NAME : " << res->getString("name")                << endl << endl;
+            cout << "                               ▷ PHONENUMBER : " << res->getString("phoneNumber")  << endl << endl;
+            cout << "                               ▷ GROUP : " << res->getString("groupName")          << endl << endl;
+            cout << "                               ▷ FRIEND : " << friendList.erase(0, 1)              << endl << endl << endl;
+            textcolor(GRAY, BLACK);
         }
     }
 
@@ -667,7 +675,14 @@ void getMyfriendInfo(string myId) {
             myPage(friendId, "friendInfo");
         }
         else {
-            cout << "친구 리스트가 없어서 조회할 친구 정보가 없습니다. 대화에 참여해 친구를 추가해보세요 ! ^0^" << endl;
+            cout << endl << endl << endl;
+            cout << "\n            ♪                                                                        ♬ " << endl;
+            cout << "                   ♬                                                          ♩♪        " << endl;
+            cout << "                            (  ◑ ▽ ◐)     (◑ ▽ ◐ )    ( ◑ ▽ ◐ )                   " << endl;
+            cout << "                                                                                           " << endl;
+            cout << "                                                                                           " << endl << endl;
+            cout << "                           친구 리스트가 없어서 조회할 친구 정보가 없습니다.               " << endl;
+            cout << "                               대화에 참여해 친구를 추가해보세요 !! :)                     " << endl;
         }
     }
 
@@ -772,14 +787,19 @@ void inputLogin(string inputId, string inputPw) {
 void successLogin(string myId) {
     string loginYN = "", select, action;
     system("cls");
-
-    cout << "\n▽▽▽▽▽▽▽▽▽▽▽▽▽▽" << endl;
-    cout << "  1. 채팅방 입장 " << endl;
-    cout << "  2. 채팅방 참가자 조회 " << endl;
-    cout << "  3. 내 정보 조회 " << endl;
-    cout << "  4. 친구정보 조회 " << endl;
-    cout << "  5. 이전 DM 보기 " << endl;
-    cout << "△△△△△△△△△△△△△△" << endl;
+    textcolor(GREEN, BLACK);
+    cout << endl << endl;
+    cout << "                   ●         ● ●        ●●●     ●●●     ●    ●                      " << endl;
+    cout << "                   ●        ●   ●     ●          ●      ● ●  ●                         " << endl;
+    cout << "                   ●        ●   ●     ●  ●●      ●      ●  ● ●                       " << endl;
+    cout << "                   ●●●       ● ●       ●● ●     ●●●     ●    ●                    " << endl << endl << endl;
+    cout << "                   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽   ▽                        " << endl << endl << endl;
+    textcolor(GRAY, BLACK);
+    cout << "                                   1.  채팅방 참가                                             " << endl << endl;
+    cout << "                                   2.  채팅방 참가자 조회                                      " << endl << endl;
+    cout << "                                   3.  내 정보 조회                                            " << endl << endl;
+    cout << "                                   4.  친구정보 조회                                           " << endl << endl;
+    cout << "                                   5.  이전 DM 조회                                            " << endl << endl;
 
     getline(cin, select);
 

@@ -9,23 +9,17 @@
 
 using namespace std;
 
-enum {
-    BLACK,
+enum color {
+    BLACK = 0,
     DARK_BLUE,
-    DARK_GREEN,
-    DARK_SKYBLUE,
-    DARK_RED,
-    DARK_VOILET,
-    DAKR_YELLOW,
-    GRAY,
-    DARK_GRAY,
-    BLUE,
+    DARK_RED = 4,
+    GRAY = 7,
+    BLUE = 9,
     GREEN,
     SKYBLUE,
     RED,
-    VIOLET,
-    YELLOW,
-    WHITE,
+    YELLOW = 14,
+    WHITE
 };
 
 void textcolor(int foreground, int background);

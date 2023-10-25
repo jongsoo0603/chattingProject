@@ -14,22 +14,16 @@ const string username = "root"; // 데이터베이스 사용자
 const string password = "1122"; // 데이터베이스 접속 비밀번호
 
 //색상
-enum {
-    BLACK,
+enum color {
+    BLACK = 0,
     DARK_BLUE,
-    DARK_GREEN,
-    DARK_SKYBLUE,
-    DARK_RED,
-    DARK_VOILET,
-    DAKR_YELLOW,
-    GRAY,
-    DARK_GRAY,
-    BLUE,
+    DARK_RED = 4,
+    GRAY = 7,
+    BLUE = 9,
     GREEN,
     SKYBLUE,
     RED,
-    VIOLET,
-    YELLOW,
+    YELLOW = 14,
     WHITE
 };
 

@@ -29,23 +29,35 @@ using namespace std;
 
 
 //색상 선언
-enum {
-    BLACK,
+enum color{
+    BLACK = 0,
     DARK_BLUE,
-    DARK_GREEN,
-    DARK_SKYBLUE,
-    DARK_RED,
-    DARK_VOILET,
-    DAKR_YELLOW,
-    GRAY,
-    DARK_GRAY,
-    BLUE,
+    DARK_RED = 4,
+    GRAY = 7,
+    BLUE = 9,
     GREEN,
     SKYBLUE,
     RED,
-    VIOLET,
-    YELLOW,
-    WHITE,
+    YELLOW = 14,
+    WHITE
+};
+
+// gotoxy()에 사용 할 좌표
+enum coordinate {
+    mainX = 39,
+    mainY1 = 17,
+    mainY2 = 19,
+    editX = 23,
+    editY1 = 5,
+    editY2 = 7,
+    editY3 = 9,
+    editY4 = 11,
+    menuX = 31,
+    menuY1 = 12,
+    menuY2 = 14,
+    menuY3 = 16,
+    menuY4 = 18,
+    menuY5 = 20
 };
 
 
@@ -135,28 +147,22 @@ int main(int argc, char* argv[])
         if (_kbhit())
         {
             input = _getch();
-            if (input == ENTER && x == 39 && (y == 17 || y == 19))
+            if (input == ENTER && x == mainX && (y == mainY1 || y == mainY2)) // 정확한 위치에서 엔터를 눌렀다면
             {
                 break;
             }
-            else
+            else // 이동
             {
                 switch (input)
                 {
                 case UP: 
                     {
-                        if (y - 1 > 16)
-                        {
-                            y -= 2;
-                        }
+                        if (y - 1 > mainY1 - 1) y -= 2;
                         break;
                     }
                 case DOWN: 
                     {
-                        if (y + 1 < 20)
-                        {
-                            y += 2;
-                        }
+                        if (y + 1 < mainY2 + 1) y += 2;
                         break;
                     }
                 }
@@ -172,7 +178,7 @@ int main(int argc, char* argv[])
 #else
         system("cls");
 #endif
-        if (x == 39 && y == 17) 
+        if (x == mainX && y == mainY1)
         {
             // 로그인
 #ifdef USE_BATCH
@@ -182,7 +188,7 @@ int main(int argc, char* argv[])
 #endif
             // break;
         }
-        else if (x == 39 && y == 19)
+        else if (x == mainX && y == mainY2)
         {
             // 회원가입
             inputMembership();
@@ -581,7 +587,7 @@ void updateMemberInfo(string myId)
         if (_kbhit())
         {
             input = _getch();
-            if (input == ENTER && x == 23 && (y == 5 || y == 7 || y == 9 || y == 11))
+            if (input == ENTER && x == editX && (y == editY1 || y == editY2 || y == editY3 || y == editY4))
             {
                 break;
             }
@@ -591,18 +597,12 @@ void updateMemberInfo(string myId)
                 {
                 case UP:
                 {
-                    if (y - 1 > 4)
-                    {
-                        y -= 2;
-                    }
+                    if (y - 1 > editY1 - 1) y -= 2;
                     break;
                 }
                 case DOWN:
                 {
-                    if (y + 1 < 12)
-                    {
-                        y += 2;
-                    }
+                    if (y + 1 < editY4 + 1) y += 2;
                     break;
                 }
                 }
@@ -613,15 +613,15 @@ void updateMemberInfo(string myId)
         Sleep(50);
     }
 
-    if (x == 23 && y == 5)
+    if (x == editX && y == editY1)
     {
         successLogin(myId);
     }
-    else if(x == 23 && (y == 7 || y == 9 || y == 11))
+    else if(x == editX && (y == editY2 || y == editY3 || y == editY4))
     {
-        if (y == 7) updateSelect = 2;
-        else if (y == 9) updateSelect = 3;
-        else if (y == 11) updateSelect = 4;
+        if (y == editY2) updateSelect = 2;
+        else if (y == editY3) updateSelect = 3;
+        else if (y == editY4) updateSelect = 4;
         system("cls");
         update(myId, updateSelect, checkCondition(updateSelect));
         system("cls");
@@ -919,7 +919,7 @@ void successLogin(string myId) {
         if (_kbhit())
         {
             input = _getch();
-            if (input == ENTER && x == 31 && (y == 12 || y == 14 || y == 16 || y == 18 || y == 20))
+            if (input == ENTER && x == menuX && (y == menuY1 || y == menuY2 || y == menuY3 || y == menuY4 || y == menuY5))
             {
                 break;
             }
@@ -929,18 +929,12 @@ void successLogin(string myId) {
                 {
                 case UP:
                 {
-                    if (y - 1 > 11)
-                    {
-                        y -= 2;
-                    }
+                    if (y - 1 > menuY1 - 1) y -= 2;
                     break;
                 }
                 case DOWN:
                 {
-                    if (y + 1 < 21)
-                    {
-                        y += 2;
-                    }
+                    if (y + 1 < menuY5 + 1) y += 2;
                     break;
                 }
                 }
@@ -950,7 +944,7 @@ void successLogin(string myId) {
         gotoxy(x, y);
         Sleep(50);
     }
-    if (x == 31 && y == 12)
+    if (x == menuX && y == menuY1)
     {
         // 로그인 중복체크.
         loginYN = loginCheck(myId);
@@ -968,26 +962,26 @@ void successLogin(string myId) {
             client(myId);
         }
     }
-    else if (x == 31 && y == 14)
+    else if (x == menuX && y == menuY2)
     {
         // 채팅방 참가자 조회
         system("cls");
         getPtcpt(myId);
     }
-    else if (x == 31 && y == 16)
+    else if (x == menuX && y == menuY3)
     {
         // 내 정보 조회
         system("cls");
         myPage(myId, "myInfo");
     }
-    else if (x == 31 && y == 18)
+    else if (x == menuX && y == menuY4)
     {
         // 친구정보 조회
         system("cls");
         getMyfriendInfo(myId);
 
     }
-    else if (x == 31 && y == 20)
+    else if (x == menuX && y == menuY5)
     {
         // 이전 DM 조회
         system("cls");

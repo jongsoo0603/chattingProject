@@ -10,7 +10,7 @@
 
 
 #define MAX_SIZE 1024
-#define MAX_CLIENT 3
+#define MAX_CLIENT 10
 
 using std::cout;
 using std::cin;

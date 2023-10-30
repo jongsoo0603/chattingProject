@@ -135,6 +135,7 @@ void server_init() {
 }
 
 
+// 여기서 뭐 왔다 갔다 한다
 void add_client(int ti) {
     SOCKADDR_IN addr = {};
     int addrsize = sizeof(addr);
@@ -186,6 +187,8 @@ void recv_msg(string user) {
     string msg = "";
     SOCKET sck = getSocket(user);
     int pIdx = 0;
+    // user가 소켓리스트에서 몇 번째인지 판단하는 userIdx라는 int 변수 하나 만들고
+    int userIdx;
 
     //cout << sck_list[idx].user << endl;
 
@@ -196,7 +199,29 @@ void recv_msg(string user) {
         x = recv(sck, buf, MAX_SIZE, 0);
         msg = user + " : " + buf;
 
-        if (msg == user + " : /q" || x < 1)
+        std::stringstream ss(msg);  // 문자열을 스트림화
+        string stream1, stream2, stream3;
+        // 스트림을 통해, 문자열을 공백 분리해 변수에 할당.
+        ss >> stream1; // 첫 번째 단어
+        ss >> stream2; // 두 번째 단어
+        ss >> stream3; // 세 번째 단어
+
+
+        if (stream3 == "/s")
+        {
+            // 여기서 소켓리스트에서 이름이 user인 사람이 몇 번째 인덱스인지 찾아야 함
+            for (int i = 0; i < sck_list.size(); i++)
+            {
+                if (sck_list[i].user == user)
+                {
+                    userIdx = i;
+                }
+            }
+            // 소켓리스트에서 이름이 user인 사람이 userIdx 번째라면
+            msg = "서버가 1대1로 보내는 메세지 테스트";
+            send(sck_list[userIdx].sck, msg.c_str(), MAX_SIZE, 0); // 해당 user에게 만 보냄 
+        }
+        else if (msg == user + " : /q" || x < 1)
         {
             msg = "[공지] " + user + " 님이 퇴장했습니다.";
 
@@ -206,7 +231,11 @@ void recv_msg(string user) {
             insertPtcpt();
 
             cout << msg << endl;
-            send_msg(msg.c_str());
+            
+
+            send_msg(msg.c_str()); // 이건 전체한테 보내는 내용
+
+
             //del_client(idx); // 클라이언트 삭제
             int remove = removeSocket(user);
             //cout << "remove " << remove << endl;

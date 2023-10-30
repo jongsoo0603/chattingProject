@@ -235,6 +235,9 @@ void client(string myId)
             cout << "Connecting..." << endl;
         }
 
+
+
+
         // 전체 채팅 받아서 출력
         std::thread th2(chat_recv);
 
@@ -320,7 +323,7 @@ int chat_recv() {
         {
             msg = buf;
             //cout << "buf :" << buf << endl;
-            std::stringstream ss(msg);  // 문자열을 스트림화
+            stringstream ss(msg);  // 문자열을 스트림화
             string stream1, stream2, stream3, stream4, stream5;
             // 스트림을 통해, 문자열을 공백 분리해 변수에 할당.
             ss >> stream1; // 첫 번째 단어

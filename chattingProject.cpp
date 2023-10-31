@@ -125,7 +125,13 @@ int main(int argc, char* argv[])
     int code = WSAStartup(MAKEWORD(2, 2), &wsa);
 
     if (!code) {
-        my_nick = "test";
+        // 임시 id 추출. (5자리 랜덤숫자)
+        srand(time(NULL)); 
+        string userID = to_string( rand() % 10000 + 10000);
+
+        cout << " 임시 id 추출 : " << userID << endl;
+
+        my_nick = "test///"+ userID;
 
         client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 

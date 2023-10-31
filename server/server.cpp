@@ -40,9 +40,21 @@ std::thread th1[MAX_CLIENT];
 void insertPtcpt();
 void insertMsgInfo(string msg);
 
+
+// DB 연결
+void connectionDB();
+void selectQuery(string user, string funcName, string sql);
+string testQ(sql::ResultSet* res, string user);
+string insertQuery(string user, string sql);
+string updateQuery(string user, string sql);
+
+
 const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
 const string password = "1122"; // 데이터베이스 접속 비밀번호
+
+sql::mysql::MySQL_Driver* driver;
+sql::Connection* con;
 
 
 void recreateThread() {
@@ -389,4 +401,96 @@ void insertMsgInfo(string msg)
         delete pstmt;
         delete con;
     }
+}
+
+
+// DB 연결
+void connectionDB() {
+    
+    try {
+        driver = sql::mysql::get_mysql_driver_instance();
+        con = driver->connect(server, username, password);
+    }
+    catch (sql::SQLException& e) {
+        cout << "Could not connect to server. Error message: " << e.what() << endl;
+        exit(1);
+    }
+
+    // 데이터베이스 선택
+    con->setSchema("chattingproject");
+}
+
+
+// SELECT 함수
+void selectQuery(string user, string funcName, string sql)
+{
+    string result;
+    sql::Statement* stmt;
+    sql::ResultSet* res;
+
+    // select문 실행
+    stmt = con->createStatement();
+    res = stmt->executeQuery(sql);
+
+
+    if (funcName == "test") {
+        testQ(res, user);
+    }
+
+
+    delete stmt;
+    delete res;
+}
+
+
+// func별 함수(test)
+string testQ(sql::ResultSet* res, string user)
+{
+    string result;
+
+    cout << "testQ :: 함수 들어옴" << endl;
+    cout << "user :: " << user << endl;
+
+    return result;
+}
+
+
+// INSERT 함수
+string insertQuery(string user, string sql)
+{
+    string successYN = "";
+    sql::Statement* stmt;
+    sql::ResultSet* res;
+
+    // insert문 실행
+    stmt = con->createStatement();
+    res = stmt->executeQuery(sql);
+
+    delete stmt;
+    delete res;
+
+    return successYN;
+}
+
+
+// UPDATE 함수
+string updateQuery(string user, string sql)
+{
+    string successYN = "";
+    sql::Statement* stmt;
+    sql::ResultSet* res;
+
+    // db 한글 저장을 위한 셋팅 
+    stmt = con->createStatement();
+    stmt->execute("set names euckr");
+    if (stmt) { delete stmt; stmt = nullptr; }
+
+    // update문 실행
+    stmt = con->createStatement();
+    res = stmt->executeQuery(sql);
+
+    delete stmt;
+    delete res;
+
+    return successYN;
 }

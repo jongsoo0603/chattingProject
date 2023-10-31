@@ -16,6 +16,9 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::string;
+using std::vector;
+using std::istringstream;
+
 
 struct SOCKET_INFO { // 연결된 소켓 정보에 대한 틀 생성
     SOCKET sck;
@@ -165,9 +168,42 @@ void add_client(int ti) {
     new_client.user = string(buf);
     new_client.ti = ti;
 
-    if (new_client.user == "test") {
+
+    string separate, substr; // temp역할하는 substr 변수
+    separate = new_client.user; 
+    istringstream ss(separate);
+    vector<string> stream;
+
+    while (getline(ss, substr, ' ')) {
+        stream.push_back(substr); // [0] : ` ,[1] : id, [2] : 함수, [3] sql구분 
+    }
+
+    
+
+    if (stream[0] == "`") {
+        string myId = stream[1];
+        string funcName = stream[2];
+        string select = stream[3];
+
+        int eraseLength = 0;
+        eraseLength = size(stream[0]) + size(stream[1]) + size(stream[2]) + 3;
+        separate.erase(0, eraseLength); // 쿼리문 만 남겨놓은 거
+
         cout << "buf :::: " << new_client.user << endl;
 
+        if (select == "SELECT")
+        {
+
+        }
+        else if (select == "INSERT")
+        {
+
+        }
+        else if (select == "UPDATE")
+        {
+
+        }
+        
     }
     else {
         string msg = "[공지] " + new_client.user + " 님이 입장했습니다.";

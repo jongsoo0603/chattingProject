@@ -116,6 +116,38 @@ void gotoxy(int x, int y);                                                  // �
 // 채팅 프로그램 - 메인.
 int main(int argc, char* argv[])
 {  
+    // 서버 연결
+    WSADATA wsa;
+
+    // Winsock를 초기화하는 함수. MAKEWORD(2, 2)는 Winsock의 2.2 버전을 사용하겠다는 의미.
+    // 실행에 성공하면 0을, 실패하면 그 이외의 값을 반환.
+    // 0을 반환했다는 것은 Winsock을 사용할 준비가 되었다는 의미.
+    int code = WSAStartup(MAKEWORD(2, 2), &wsa);
+
+    if (!code) {
+        my_nick = "test";
+
+        client_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+        // 연결할 서버 정보 설정 부분
+        SOCKADDR_IN client_addr = {};
+        client_addr.sin_family = AF_INET;
+        client_addr.sin_port = htons(7777);
+        InetPton(AF_INET, TEXT("127.0.0.1"), &client_addr.sin_addr); // 연결할 서버의 ip주소
+
+        while (1) {
+            if (!connect(client_sock, (SOCKADDR*)&client_addr, sizeof(client_addr))) { // 위에 설정한 정보에 해당하는 server로 연결!
+                cout << "Server Connect" << endl;
+
+                send(client_sock, my_nick.c_str(), my_nick.length(), 0); // 연결에 성공하면 client 가 입력한 닉네임을 서버로 전송
+                break;
+            }
+            cout << "Connecting..." << endl;
+        }
+
+    }
+
+
     int select, x = 39, y = 17, input;
 
     while(true)
@@ -209,7 +241,6 @@ void client(string myId)
     // 실행에 성공하면 0을, 실패하면 그 이외의 값을 반환.
     // 0을 반환했다는 것은 Winsock을 사용할 준비가 되었다는 의미.
     int code = WSAStartup(MAKEWORD(2, 2), &wsa);
-    vector<vector<string>> pList;
 
     if (!code) {
         my_nick = myId;

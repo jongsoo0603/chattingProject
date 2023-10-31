@@ -153,22 +153,28 @@ void add_client(int ti) {
     new_client.user = string(buf);
     new_client.ti = ti;
 
-    string msg = "[공지] " + new_client.user + " 님이 입장했습니다.";
-    pctList.push_back(new_client.user);
-    insertPtcpt();
+    if (new_client.user == "test") {
+        cout << "buf :::: " << new_client.user << endl;
 
-    cout << msg << endl;
-    sck_list.push_back(new_client); // client 정보를 답는 sck_list 배열에 새로운 client 추가
+    }
+    else {
+        string msg = "[공지] " + new_client.user + " 님이 입장했습니다.";
+        pctList.push_back(new_client.user);
+        insertPtcpt();
 
-    std::thread th(recv_msg, new_client.user);
-    // 다른 사람들로부터 오는 메시지를 계속해서 받을 수 있는 상태로 만들어 두기.
+        cout << msg << endl;
+        sck_list.push_back(new_client); // client 정보를 답는 sck_list 배열에 새로운 client 추가
 
-    client_count++; // client 수 증가.
-    cout << "[공지] 현재 접속자 수 : " << client_count << "명" << endl;
-    send_msg(msg.c_str()); // c_str : string 타입을 const chqr* 타입으로 바꿔줌.
+        std::thread th(recv_msg, new_client.user);
+        // 다른 사람들로부터 오는 메시지를 계속해서 받을 수 있는 상태로 만들어 두기.
 
-    th.join();
-    //cout << "th.join()" << endl;
+        client_count++; // client 수 증가.
+        cout << "[공지] 현재 접속자 수 : " << client_count << "명" << endl;
+        send_msg(msg.c_str()); // c_str : string 타입을 const chqr* 타입으로 바꿔줌.
+
+        th.join();
+        //cout << "th.join()" << endl;
+    }
 }
 
 

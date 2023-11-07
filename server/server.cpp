@@ -16,9 +16,6 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::string;
-using std::vector;
-using std::istringstream;
-
 
 struct SOCKET_INFO { // 연결된 소켓 정보에 대한 틀 생성
     SOCKET sck;
@@ -43,21 +40,9 @@ std::thread th1[MAX_CLIENT];
 void insertPtcpt();
 void insertMsgInfo(string msg);
 
-
-// DB 연결
-void connectionDB();
-void selectQuery(string user, string funcName, string sql);
-string testQ(sql::ResultSet* res, string user);
-string insertQuery(string user, string sql);
-string updateQuery(string user, string sql);
-
-
 const string server = "tcp://127.0.0.1:3306"; // 데이터베이스 주소
 const string username = "root"; // 데이터베이스 사용자
 const string password = "1122"; // 데이터베이스 접속 비밀번호
-
-sql::mysql::MySQL_Driver* driver;
-sql::Connection* con;
 
 
 void recreateThread() {
@@ -150,7 +135,6 @@ void server_init() {
 }
 
 
-// 여기서 뭐 왔다 갔다 한다
 void add_client(int ti) {
     SOCKADDR_IN addr = {};
     int addrsize = sizeof(addr);
@@ -168,61 +152,22 @@ void add_client(int ti) {
     new_client.user = string(buf);
     new_client.ti = ti;
 
+    string msg = "[공지] " + new_client.user + " 님이 입장했습니다.";
+    pctList.push_back(new_client.user);
+    insertPtcpt();
 
-    string separate, substr; // temp역할하는 substr 변수
-    separate = new_client.user; 
-    istringstream ss(separate);
-    vector<string> stream;
+    cout << msg << endl;
+    sck_list.push_back(new_client); // client 정보를 답는 sck_list 배열에 새로운 client 추가
 
-    while (getline(ss, substr, ' ')) {
-        stream.push_back(substr); // [0] : ` ,[1] : id, [2] : 함수, [3] sql구분 
-    }
+    std::thread th(recv_msg, new_client.user);
+    // 다른 사람들로부터 오는 메시지를 계속해서 받을 수 있는 상태로 만들어 두기.
 
-    
+    client_count++; // client 수 증가.
+    cout << "[공지] 현재 접속자 수 : " << client_count << "명" << endl;
+    send_msg(msg.c_str()); // c_str : string 타입을 const chqr* 타입으로 바꿔줌.
 
-    if (stream[0] == "`") {
-        string myId = stream[1];
-        string funcName = stream[2];
-        string select = stream[3];
-
-        int eraseLength = 0;
-        eraseLength = size(stream[0]) + size(stream[1]) + size(stream[2]) + 3;
-        separate.erase(0, eraseLength); // 쿼리문 만 남겨놓은 거
-
-        cout << "buf :::: " << new_client.user << endl;
-
-        if (select == "SELECT")
-        {
-
-        }
-        else if (select == "INSERT")
-        {
-
-        }
-        else if (select == "UPDATE")
-        {
-
-        }
-        
-    }
-    else {
-        string msg = "[공지] " + new_client.user + " 님이 입장했습니다.";
-        pctList.push_back(new_client.user);
-        insertPtcpt();
-
-        cout << msg << endl;
-        sck_list.push_back(new_client); // client 정보를 답는 sck_list 배열에 새로운 client 추가
-
-        std::thread th(recv_msg, new_client.user);
-        // 다른 사람들로부터 오는 메시지를 계속해서 받을 수 있는 상태로 만들어 두기.
-
-        client_count++; // client 수 증가.
-        cout << "[공지] 현재 접속자 수 : " << client_count << "명" << endl;
-        send_msg(msg.c_str()); // c_str : string 타입을 const chqr* 타입으로 바꿔줌.
-
-        th.join();
-        //cout << "th.join()" << endl;
-    }
+    th.join();
+    //cout << "th.join()" << endl;
 }
 
 
@@ -241,8 +186,6 @@ void recv_msg(string user) {
     string msg = "";
     SOCKET sck = getSocket(user);
     int pIdx = 0;
-    // user가 소켓리스트에서 몇 번째인지 판단하는 userIdx라는 int 변수 하나 만들고
-    int userIdx;
 
     //cout << sck_list[idx].user << endl;
 
@@ -253,29 +196,7 @@ void recv_msg(string user) {
         x = recv(sck, buf, MAX_SIZE, 0);
         msg = user + " : " + buf;
 
-        std::stringstream ss(msg);  // 문자열을 스트림화
-        string stream1, stream2, stream3;
-        // 스트림을 통해, 문자열을 공백 분리해 변수에 할당.
-        ss >> stream1; // 첫 번째 단어
-        ss >> stream2; // 두 번째 단어
-        ss >> stream3; // 세 번째 단어
-
-
-        if (stream3 == "/s")
-        {
-            // 여기서 소켓리스트에서 이름이 user인 사람이 몇 번째 인덱스인지 찾아야 함
-            for (int i = 0; i < sck_list.size(); i++)
-            {
-                if (sck_list[i].user == user)
-                {
-                    userIdx = i;
-                }
-            }
-            // 소켓리스트에서 이름이 user인 사람이 userIdx 번째라면
-            msg = "서버가 1대1로 보내는 메세지 테스트";
-            send(sck_list[userIdx].sck, msg.c_str(), MAX_SIZE, 0); // 해당 user에게 만 보냄 
-        }
-        else if (msg == user + " : /q" || x < 1)
+        if (msg == user + " : /q" || x < 1)
         {
             msg = "[공지] " + user + " 님이 퇴장했습니다.";
 
@@ -285,11 +206,7 @@ void recv_msg(string user) {
             insertPtcpt();
 
             cout << msg << endl;
-            
-
-            send_msg(msg.c_str()); // 이건 전체한테 보내는 내용
-
-
+            send_msg(msg.c_str());
             //del_client(idx); // 클라이언트 삭제
             int remove = removeSocket(user);
             //cout << "remove " << remove << endl;
@@ -437,96 +354,4 @@ void insertMsgInfo(string msg)
         delete pstmt;
         delete con;
     }
-}
-
-
-// DB 연결
-void connectionDB() {
-    
-    try {
-        driver = sql::mysql::get_mysql_driver_instance();
-        con = driver->connect(server, username, password);
-    }
-    catch (sql::SQLException& e) {
-        cout << "Could not connect to server. Error message: " << e.what() << endl;
-        exit(1);
-    }
-
-    // 데이터베이스 선택
-    con->setSchema("chattingproject");
-}
-
-
-// SELECT 함수
-void selectQuery(string user, string funcName, string sql)
-{
-    string result;
-    sql::Statement* stmt;
-    sql::ResultSet* res;
-
-    // select문 실행
-    stmt = con->createStatement();
-    res = stmt->executeQuery(sql);
-
-
-    if (funcName == "test") {
-        testQ(res, user);
-    }
-
-
-    delete stmt;
-    delete res;
-}
-
-
-// func별 함수(test)
-string testQ(sql::ResultSet* res, string user)
-{
-    string result;
-
-    cout << "testQ :: 함수 들어옴" << endl;
-    cout << "user :: " << user << endl;
-
-    return result;
-}
-
-
-// INSERT 함수
-string insertQuery(string user, string sql)
-{
-    string successYN = "";
-    sql::Statement* stmt;
-    sql::ResultSet* res;
-
-    // insert문 실행
-    stmt = con->createStatement();
-    res = stmt->executeQuery(sql);
-
-    delete stmt;
-    delete res;
-
-    return successYN;
-}
-
-
-// UPDATE 함수
-string updateQuery(string user, string sql)
-{
-    string successYN = "";
-    sql::Statement* stmt;
-    sql::ResultSet* res;
-
-    // db 한글 저장을 위한 셋팅 
-    stmt = con->createStatement();
-    stmt->execute("set names euckr");
-    if (stmt) { delete stmt; stmt = nullptr; }
-
-    // update문 실행
-    stmt = con->createStatement();
-    res = stmt->executeQuery(sql);
-
-    delete stmt;
-    delete res;
-
-    return successYN;
 }

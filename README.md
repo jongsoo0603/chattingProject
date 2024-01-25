@@ -1,4 +1,4 @@
-# 채팅 프로그램
+# [채팅 프로그램](https://www.notion.so/a1dd680e432a4c99a225df8665d49f16?pvs=4)
 
 ---
 
@@ -48,31 +48,29 @@
 ---
 
 # 📺 시연 영상
+[![Video Label](http://img.youtube.com/vi/RCxbHagOcmU/0.jpg)](https://youtu.be/RCxbHagOcmU?si=b-Bus8Zuo3ZE7kxV)
 
-[https://youtu.be/RCxbHagOcmU?si=b-Bus8Zuo3ZE7kxV](https://youtu.be/RCxbHagOcmU?si=b-Bus8Zuo3ZE7kxV)
 
 ---
 
-# 📃 발표 PPT
+# 📃 [발표 PPT](https://docs.google.com/presentation/d/1RdeuP0C05-BWHUzGlX5enSWm1gmgxYr8/edit?usp=share_link&ouid=114926827325419426334&rtpof=true&sd=true)
 
-[https://docs.google.com/presentation/d/1RdeuP0C05-BWHUzGlX5enSWm1gmgxYr8/edit?usp=share_link&ouid=114926827325419426334&rtpof=true&sd=true](https://docs.google.com/presentation/d/1RdeuP0C05-BWHUzGlX5enSWm1gmgxYr8/edit?usp=share_link&ouid=114926827325419426334&rtpof=true&sd=true)
 
 ---
 
 # 🌍 깃허브
 
-Fork 한 본인 Repository
+- [Fork 한 본인 Repository](https://github.com/jongsoo0603/chattingProject/tree/main)
 
-[GitHub - jongsoo0603/chattingProject](https://github.com/jongsoo0603/chattingProject/tree/main)
-
-- 협업 원본 Repository
-    
-    [GitHub - dayoungkwon-dev/chattingProject](https://github.com/dayoungkwon-dev/chattingProject)
+- [협업 원본 Repository](https://github.com/dayoungkwon-dev/chattingProject)
     
 
 ---
 
 # 📖 주요 코드
+<details>
+<summary>C++에서 DB 연결 후 조건에 맞는 Data 출력</summary>
+<div markdown="1">
 
 - C++에서 DB 연결 후 조건에 맞는 Data 출력
     
@@ -146,7 +144,14 @@ Fork 한 본인 Repository
         }
     }
     ```
-    
+
+</div>
+</details>
+
+<details>
+<summary>채팅 받아와서 후처리 후 출력</summary>
+<div markdown="1">
+
 - 채팅 받아와서 후처리 후 출력
     
     ```cpp
@@ -203,7 +208,14 @@ Fork 한 본인 Repository
         cout << "chat_recv end" << endl;
     }
     ```
+
+</div>
+</details>
     
+<details>
+<summary>채팅방 연결 유지, 채팅 입력 시 전처리 후 서버에 전송</summary>
+<div markdown="1">
+
 - 채팅방 연결 유지, 채팅 입력 시 전처리 후 서버에 전송
     
     ```cpp
@@ -313,3 +325,7 @@ Fork 한 본인 Repository
         successLogin(my_nick);
     }
     ```
+
+
+</div>
+</details>
